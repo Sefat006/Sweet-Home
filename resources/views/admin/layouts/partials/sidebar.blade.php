@@ -17,6 +17,7 @@
                     <span>Dashboard</span>
                 </a>
             </li>
+            @if(isSuperAdmin())
             <li class="">
                 <a class="has-arrow" href="#">
                     <i class="fas fa-user"></i>
@@ -29,20 +30,22 @@
                             <span>Admin List</span>
                         </a>
                     </li>
-                    <!-- <li class="">
-                        <a href="assets/create-admin">
+                    <li class="">
+                        <a href="{{ route('super_admin.list')}}">
                             <i class="fa fa-circle"></i>
-                            <span>Add Admin</span>
+                            <span>Super Admin Lists</span>
                         </a>
                     </li>
                     <li class="">
-                        <a href="assets/roles">
+                        <a href="{{ route('super_admin.create.super_admin')}}">
                             <i class="fa fa-circle"></i>
-                            <span>Roles</span>
+                            <span>Create Super Admin</span>
                         </a>
-                    </li> -->
+                    </li>
+                    
                 </ul>
             </li>
+            @endif
             <li class="">
                 <a class="has-arrow" href="#">
                     <i class="fas fa-list"></i>

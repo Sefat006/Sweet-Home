@@ -147,14 +147,20 @@
                                         </a>
 
                                         {{-- Delete --}}
-                                        <a href="#"
-                                            class=""
-                                            title="Delete"
-                                            onclick="return confirm('Are you sure you want to delete this admin?')">
+                                        <form action="{{ route('super_admin.admin.delete', $admin->id) }}"
+                                            method="POST"
+                                            style="display:inline-block;"
+                                            onsubmit="return confirm('Are you sure you want to delete this super admin?')">
 
-                                            <i class="fa-solid fa-trash"></i>
+                                            @csrf
+                                            @method('DELETE')
 
-                                        </a>
+                                            <button type="submit"
+                                                style="border:none;background:none;color:red;">
+                                                <i class="fa-solid fa-trash"></i>
+                                            </button>
+
+                                        </form>
 
                                     </div>
 

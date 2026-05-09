@@ -29,4 +29,10 @@ Route::prefix('super-admin')->name('super_admin.')->group(function () {
     Route::get('/dashboard',[AuthController::class, 'dashboard'])->name('dashboard');
     Route::get('/admins-list',[SuperAdminController::class, 'adminsList'])->name('admins.list');
     Route::post('/admin/change-status/{id}',[SuperAdminController::class, 'changeAdminStatus'])->name('change.status');
+    Route::delete('/admin/delete/{id}',[SuperAdminController::class, 'deleteAdmin'])->name('admin.delete');
+     // CREATE SUPER ADMIN
+    Route::get('/create-super-admin',[SuperAdminController::class, 'createSuperAdmin'])->name('create.super_admin');
+    Route::post('/store-super-admin',[SuperAdminController::class, 'storeSuperAdmin'])->name('store.super_admin');
+    Route::get('/super-admins-list',[SuperAdminController::class, 'superAdminsList'])->name('list');
+    Route::delete('/super-admin/delete/{id}',[SuperAdminController::class, 'deleteSuperAdmin'])->name('delete');
 });
