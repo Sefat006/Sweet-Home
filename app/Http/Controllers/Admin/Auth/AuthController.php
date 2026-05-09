@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Admin\Auth;
 
+use App\Http\Controllers\Admin\SuperAdminController;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -97,14 +98,18 @@ class AuthController extends Controller
         $user = Auth::user();
 
         if (isSuperAdmin()) {
-            return view('admin.dashboard.super_admin');
+            return app(SuperAdminController::class)
+                ->dashboard();
         }
 
         if (isAdmin()) {
             return view('admin.dashboard.admin');
         }
 
-        // fallback
+        if ($user->role === 'manager') {
+            return view('manager.dashboard');
+        }
+
         Auth::logout();
 
         return redirect()->route('login');

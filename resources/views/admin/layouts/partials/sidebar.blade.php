@@ -24,12 +24,12 @@
                 </a>
                 <ul>
                     <li class="">
-                        <a href="assets/admins">
+                        <a href="{{ route('super_admin.admins.list') }}">
                             <i class="fa fa-circle"></i>
                             <span>Admin List</span>
                         </a>
                     </li>
-                    <li class="">
+                    <!-- <li class="">
                         <a href="assets/create-admin">
                             <i class="fa fa-circle"></i>
                             <span>Add Admin</span>
@@ -40,7 +40,7 @@
                             <i class="fa fa-circle"></i>
                             <span>Roles</span>
                         </a>
-                    </li>
+                    </li> -->
                 </ul>
             </li>
             <li class="">
