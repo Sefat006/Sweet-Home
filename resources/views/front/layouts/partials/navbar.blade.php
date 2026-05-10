@@ -7,11 +7,11 @@
             </button>
             <div class="collapse navbar-collapse" id="navbarNav">
                 <ul class="navbar-nav ms-auto gap-2 mt-3 mt-lg-0">
-                    <li class="nav-item">
+                    <!-- <li class="nav-item">
                         <a href="{{route('login')}}" class="btn btn-outline-primary w-100">Sign In</a>
-                    </li>
+                    </li> -->
                     <li class="nav-item">
-                        <a href="{{route('register')}}" class="btn btn-primary text-white w-100">Sign Up</a>
+                        <a href="{{route('login')}}" class="btn btn-primary text-white w-100">Sign In</a>
                     </li>
                 </ul>
             </div>

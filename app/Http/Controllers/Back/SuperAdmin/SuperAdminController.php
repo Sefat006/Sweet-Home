@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Back\SuperAdmin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
@@ -97,8 +97,8 @@ class SuperAdminController extends Controller
     public function deleteAdmin($id)
     {
         $admin = User::where('role', 'admin')->findOrFail($id);
-        
-        $admin->delete();
+
+        $admin->forceDelete();
 
         return back()->with('success', 'Admin deleted successfully.');
     }
@@ -154,12 +154,12 @@ class SuperAdminController extends Controller
     {
         $user = User::where('role', 'super_admin')->findOrFail($id);
 
-        // safety: prevent deleting yourself
+        // prevent self delete
         if ($user->id == Auth::id()) {
             return back()->with('error', 'You cannot delete yourself.');
         }
 
-        $user->delete();
+        $user->forceDelete();
 
         return back()->with('success', 'Super Admin deleted successfully.');
     }

@@ -8,10 +8,10 @@
     <title>Dashboard | Sweet Home</title>
 
     <!-- Favicon included -->
-    <link rel="shortcut icon" href="assets/images/favicon.png" type="image/x-icon">
+    <link rel="shortcut icon" href="assets/images/" type="image/x-icon">
 
     <!-- Apple touch icon included -->
-    <link rel="apple-touch-icon" href="assets/images/favicon.png">
+    <link rel="apple-touch-icon" href="assets/images/">
 
     <!-- All CSS files included here -->
     <link rel="stylesheet" href="{{ asset('admin/assets/css/all.min.css') }}">

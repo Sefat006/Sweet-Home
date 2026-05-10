@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Http\Controllers\Admin\Auth;
+namespace App\Http\Controllers\Back\Auth;
 
-use App\Http\Controllers\Admin\SuperAdminController;
+use App\Http\Controllers\Back\SuperAdmin\SuperAdminController;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;

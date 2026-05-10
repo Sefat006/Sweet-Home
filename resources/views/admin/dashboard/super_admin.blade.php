@@ -85,7 +85,7 @@
                 <span>Pending Admin Registrations</span>
 
                 <a href="{{ route('super_admin.admins.list') }}"
-                   class="btn btn-sm btn-primary">
+                    class="btn btn-sm btn-primary">
                     View All Admins
                 </a>
             </div>
@@ -94,113 +94,112 @@
 
                 @if($pendingAdmins->count() > 0)
 
-                    <div class="table-responsive">
+                <div class="table-responsive">
 
-                        <table class="table align-middle">
+                    <table class="table align-middle">
 
-                            <thead>
-                                <tr>
-                                    <th>SL</th>
-                                    <th>Image</th>
-                                    <th>Name</th>
-                                    <th>Phone</th>
-                                    <th>Email</th>
-                                    <th>Status</th>
-                                    <th width="220">Action</th>
-                                </tr>
-                            </thead>
+                        <thead>
+                            <tr>
+                                <th>SL</th>
+                                <th>Image</th>
+                                <th>Name</th>
+                                <th>Phone</th>
+                                <th>Email</th>
+                                <th>Status</th>
+                                <th width="220">Action</th>
+                            </tr>
+                        </thead>
 
-                            <tbody>
+                        <tbody>
 
-                                @foreach($pendingAdmins as $key => $admin)
+                            @foreach($pendingAdmins as $key => $admin)
 
-                                    <tr>
+                            <tr>
 
-                                        <td>
-                                            {{ $key + 1 }}
-                                        </td>
+                                <td>
+                                    {{ $key + 1 }}
+                                </td>
 
-                                        <td>
-                                            <img
-                                                src="{{ $admin->image ? asset($admin->image) : asset('default.png') }}"
-                                                width="50"
-                                                height="50"
-                                                class="rounded-circle object-fit-cover"
-                                                alt=""
-                                            >
-                                        </td>
+                                <td>
+                                    <img
+                                        src="{{ $admin->image ? asset($admin->image) : asset('default.png') }}"
+                                        width="50"
+                                        height="50"
+                                        class="rounded-circle object-fit-cover"
+                                        alt="">
+                                </td>
 
-                                        <td>
-                                            {{ $admin->name }}
-                                        </td>
+                                <td>
+                                    {{ $admin->name }}
+                                </td>
 
-                                        <td>
-                                            {{ $admin->phone }}
-                                        </td>
+                                <td>
+                                    {{ $admin->phone }}
+                                </td>
 
-                                        <td>
-                                            {{ $admin->email }}
-                                        </td>
+                                <td>
+                                    {{ $admin->email }}
+                                </td>
 
-                                        <td>
-                                            <span class="badge bg-warning">
-                                                Pending
-                                            </span>
-                                        </td>
+                                <td>
+                                    <span class="badge bg-warning">
+                                        Pending
+                                    </span>
+                                </td>
 
-                                        <td>
+                                <td>
 
-                                            <div class="d-flex gap-2">
+                                    <div class="d-flex gap-2">
 
-                                                {{-- Approve --}}
-                                                <form action="{{ route('super_admin.change.status', $admin->id) }}"
-                                                      method="POST">
-                                                    @csrf
+                                        {{-- Approve --}}
+                                        <form action="{{ route('super_admin.change.status', $admin->id) }}"
+                                            method="POST">
+                                            @csrf
 
-                                                    <input type="hidden"
-                                                           name="status"
-                                                           value="approved">
+                                            <input type="hidden"
+                                                name="status"
+                                                value="approved">
 
-                                                    <button type="submit"
-                                                            class="btn btn-success btn-sm">
-                                                        Approve
-                                                    </button>
-                                                </form>
+                                            <button type="submit"
+                                                class="btn btn-success btn-sm">
+                                                Approve
+                                            </button>
+                                        </form>
 
-                                                {{-- Reject --}}
-                                                <form action="{{ route('super_admin.change.status', $admin->id) }}"
-                                                      method="POST">
-                                                    @csrf
+                                        {{-- Reject --}}
+                                        <form action="{{ route('super_admin.change.status', $admin->id) }}"
+                                            method="POST">
+                                            @csrf
 
-                                                    <input type="hidden"
-                                                           name="status"
-                                                           value="rejected">
+                                            <input type="hidden"
+                                                name="status"
+                                                value="rejected">
 
-                                                    <button type="submit"
-                                                            class="btn btn-danger btn-sm">
-                                                        Reject
-                                                    </button>
-                                                </form>
+                                            <button type="submit"
+                                                class="btn btn-danger btn-sm">
+                                                Reject
+                                            </button>
+                                        </form>
 
-                                            </div>
+                                    </div>
 
-                                        </td>
+                                </td>
 
-                                    </tr>
+                            </tr>
 
-                                @endforeach
+                            @endforeach
 
-                            </tbody>
+                        </tbody>
 
-                        </table>
+                    </table>
 
-                    </div>
+                </div>
 
                 @else
 
-                    <p class="text-muted mb-0">
-                        No pending approvals.
-                    </p>
+                <p class="text-muted mb-0">
+                    No pending approvals.
+                </p>
 
                 @endif
 

@@ -15,7 +15,7 @@
     <i class="fas fa-exclamation-triangle me-2"></i>
     <div>
         Your profile is incomplete. 
-        <a href="#" class="fw-semibold alert-link">Complete your profile</a> 
+        <a href="{{ route('admin.profile.edit') }}" class="fw-semibold alert-link">Complete your profile</a> 
         to unlock all features.
     </div>
 </div>
