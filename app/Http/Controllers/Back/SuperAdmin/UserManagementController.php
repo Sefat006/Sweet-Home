@@ -25,9 +25,9 @@ class UserManagementController extends Controller
      */
     public function show($id)
     {
-        $admin = User::where('role', 'admin')->findOrFail($id);
+        $user = User::findOrFail($id);
 
-        return view('super_admin.user_management.show', compact('admin'));
+        return view('admin.profile.show', compact('user'));
     }
 
     /**
@@ -38,16 +38,17 @@ class UserManagementController extends Controller
         $allowed = [
             'nid_document', 'passport_document', 'tin_document',
             'driving_licence_document', 'occupation_document', 'car_details_document',
+            'education_document',
         ];
 
         abort_if(!in_array($field, $allowed), 403);
 
-        $admin = User::where('role', 'admin')->findOrFail($id);
-        $path  = $admin->$field;
-
-        abort_if(!$path || !Storage::disk('public')->exists($path), 404, 'Document not found.');
-
-        return Storage::disk('public')->download($path);
+        $admin = User::findOrFail($id);
+        $path  = public_path($admin->$field);
+ 
+        abort_if(!$admin->$field || !file_exists($path), 404, 'Document not found.');
+ 
+        return response()->download($path);
     }
 
     /**

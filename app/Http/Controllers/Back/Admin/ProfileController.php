@@ -53,6 +53,7 @@ class ProfileController extends Controller
             'driving_licence_document'   => 'nullable|mimes:jpg,jpeg,png,pdf|max:5120',
             'occupation_document'        => 'nullable|mimes:jpg,jpeg,png,pdf|max:5120',
             'car_details_document'       => 'nullable|mimes:jpg,jpeg,png,pdf|max:5120',
+            'education_document'         => 'nullable|mimes:jpg,jpeg,png,pdf|max:5120',
         ]);
 
         $data = $request->except([
@@ -65,6 +66,7 @@ class ProfileController extends Controller
             'driving_licence_document',
             'occupation_document',
             'car_details_document',
+            'education_document',
             'edu_exam',
             'edu_institute',
             'edu_date',
@@ -88,21 +90,27 @@ class ProfileController extends Controller
 
         // ── File uploads ─────────────────────────────────────────────────
         $fileFields = [
-            'image'                    => 'profile/images',
-            'nid_document'             => 'profile/documents',
-            'passport_document'        => 'profile/documents',
-            'tin_document'             => 'profile/documents',
-            'driving_licence_document' => 'profile/documents',
-            'occupation_document'      => 'profile/documents',
-            'car_details_document'     => 'profile/documents',
+            'image'                    => 'admin/assets/images/profiles',
+            'nid_document'             => 'admin/assets/documents/nid',
+            'passport_document'        => 'admin/assets/documents/passport',
+            'tin_document'             => 'admin/assets/documents/tin',
+            'driving_licence_document' => 'admin/assets/documents/driving_licence',
+            'occupation_document'      => 'admin/assets/documents/occupation',
+            'car_details_document'     => 'admin/assets/documents/car_details',
+            'education_document'       => 'admin/assets/documents/education',
         ];
 
         foreach ($fileFields as $field => $folder) {
             if ($request->hasFile($field)) {
-                if ($user->$field) {
-                    Storage::disk('public')->delete($user->$field);
+                // Delete old file if exists
+                if ($user->$field && file_exists(public_path($user->$field))) {
+                    @unlink(public_path($user->$field));
                 }
-                $data[$field] = $request->file($field)->store($folder, 'public');
+                
+                $file = $request->file($field);
+                $filename = time() . '_' . str_replace(' ', '_', $file->getClientOriginalName());
+                $file->move(public_path($folder), $filename);
+                $data[$field] = $folder . '/' . $filename;
             }
         }
 

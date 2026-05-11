@@ -654,6 +654,9 @@
                                 <div class="pf-file__text">
                                     <div class="pf-file__cta">Attach document</div>
                                     <div class="pf-file__hint">PDF or Image, max 5 MB</div>
+                                    @if($user->education_document)
+                                    <div class="pf-file__existing">&#10003; Current: {{ basename($user->education_document) }}</div>
+                                    @endif
                                     <div class="pf-file__name" id="f_edu_doc_name"></div>
                                 </div>
                             </div>

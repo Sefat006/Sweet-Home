@@ -70,7 +70,7 @@
                                         src="{{ $admin->image ? asset($admin->image) : asset('default.png') }}"
                                         width="50"
                                         height="50"
-                                        class="rounded-circle object-fit-cover"
+                                        class="object-fit-cover"
                                         alt="">
                                 </td>
 
@@ -138,7 +138,7 @@
                                     <div class="d-flex gap-2 align-items-center">
 
                                         {{-- View --}}
-                                        <a href="#"
+                                        <a href="{{ route('super_admin.admin.show', $admin->id) }}"
                                             class=""
                                             title="View">
 

@@ -82,7 +82,7 @@
                                     <div class="d-flex gap-2 align-items-center">
 
                                         {{-- View --}}
-                                        <a href="#"
+                                        <a href="{{ route('super_admin.admin.show', $admin->id) }}"
                                            title="View">
                                             <i class="fa-solid fa-eye"></i>
                                         </a>

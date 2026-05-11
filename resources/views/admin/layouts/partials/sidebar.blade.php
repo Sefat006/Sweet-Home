@@ -45,6 +45,9 @@
             </ul>
         </li>
         @endif
+        
+
+        @if(isAdmin())
         <li class="">
             <a href="{{ route('admin.dashboard')}}">
                 <img src="assets/images/icons/sidebar/dashboard.svg" alt="icon">
@@ -63,6 +66,7 @@
                 <span>Edit Profile</span>
             </a>
         </li>
+        @endif
         <li class="">
             <a class="has-arrow" href="#">
                 <i class="fas fa-list"></i>
