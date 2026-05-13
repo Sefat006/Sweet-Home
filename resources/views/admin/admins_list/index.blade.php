@@ -146,6 +146,15 @@
 
                                         </a>
 
+                                        {{-- View Buildings --}}
+                                        <a href="{{ route('admin.building.index', ['admin_id' => $admin->id]) }}"
+                                            class="text-primary"
+                                            title="View Buildings">
+
+                                            <i class="fa-solid fa-building"></i>
+
+                                        </a>
+
                                         {{-- Delete --}}
                                         <form action="{{ route('super_admin.admin.delete', $admin->id) }}"
                                             method="POST"

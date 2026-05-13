@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Back\Admin\BuildingController;
 use App\Http\Controllers\Back\Admin\ProfileController;
 use App\Http\Controllers\Front\WelcomeController;
 use App\Http\Controllers\Back\Auth\AuthController;
@@ -60,4 +61,14 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Profile — edit form (GET) + update (PUT)
     Route::get('/profile/edit',   [ProfileController::class, 'edit'])->name('profile.edit');
     Route::put('/profile/update', [ProfileController::class, 'update'])->name('profile.update');
+
+
+    // Building Routes
+    Route::get('/buildings', [BuildingController::class, 'index'])->name('building.index');
+    Route::get('/building/create', [BuildingController::class, 'create'])->name('building.create');
+    Route::post('/building/store', [BuildingController::class, 'store'])->name('building.store');
+    Route::get('/building/{id}/show', [BuildingController::class, 'show'])->name('building.show');
+    Route::get('/building/{id}/edit', [BuildingController::class, 'edit'])->name('building.edit');
+    Route::put('/building/{id}/update', [BuildingController::class, 'update'])->name('building.update');
+    Route::delete('/building/{id}/delete', [BuildingController::class, 'destroy'])->name('building.destroy');
 });

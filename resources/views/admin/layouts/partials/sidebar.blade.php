@@ -55,7 +55,7 @@
             </a>
         </li>
         <li class="">
-            <a href="">
+            <a href="{{ route('admin.profile.show') }}">
                 <i class="fa-solid fa-user"></i>
                 <span>Profile</span>
             </a>
@@ -66,6 +66,13 @@
                 <span>Edit Profile</span>
             </a>
         </li>
+        <li class="">
+            <a href="{{ route('admin.building.index')}}">
+                <i class="fa-solid fa-user"></i>
+                <span>Buildings</span>
+            </a>
+        </li>
+        
         @endif
         <li class="">
             <a class="has-arrow" href="#">
