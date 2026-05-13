@@ -91,19 +91,19 @@ if (!function_exists('billCollectionStatus')) {
     }
 }
 
-// if (!function_exists('flatTotalRent')) {
-//     /**
-//      * Calculate total rent from a flat model or array of rent fields.
-//      * Accepts an \App\Models\Flat instance or an associative array.
-//      */
-//     function flatTotalRent(\App\Models\Flat|array $flat): float
-//     {
-//         $fields = ['house_rent', 'wasa', 'common_electricity', 'gas', 'utility', 'parking', 'society_bill', 'security', 'other'];
+if (!function_exists('flatTotalRent')) {
+    /**
+     * Calculate total rent from a flat model or array of rent fields.
+     * Accepts an \App\Models\Flat instance or an associative array.
+     */
+    function flatTotalRent(\App\Models\Flat|array $flat): float
+    {
+        $fields = ['house_rent', 'wasa', 'common_electricity', 'gas', 'utility', 'parking', 'society_bill', 'security', 'other'];
 
-//         $total = 0.0;
-//         foreach ($fields as $field) {
-//             $total += (float) (is_array($flat) ? ($flat[$field] ?? 0) : $flat->{$field});
-//         }
-//         return $total;
-//     }
-// }
+        $total = 0.0;
+        foreach ($fields as $field) {
+            $total += (float) (is_array($flat) ? ($flat[$field] ?? 0) : $flat->{$field});
+        }
+        return $total;
+    }
+}

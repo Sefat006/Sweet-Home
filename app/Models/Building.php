@@ -33,10 +33,10 @@ class Building extends Model
         return $this->hasMany(BuildingSecurity::class);
     }
 
-    // public function flats()
-    // {
-    //     return $this->hasMany(Flat::class);
-    // }
+    public function flats()
+    {
+        return $this->hasMany(Flat::class);
+    }
 
     // public function expenses()
     // {
