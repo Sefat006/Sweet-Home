@@ -59,8 +59,8 @@ class Flat extends Model
         return $this->hasOne(FlatTenant::class)->where('status', 'active');
     }
 
-    // public function monthlyBills()
-    // {
-    //     return $this->hasMany(MonthlyBill::class);
-    // }
+    public function monthlyBills()
+    {
+        return $this->hasMany(MonthlyBill::class);
+    }
 }

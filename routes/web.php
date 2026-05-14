@@ -1,8 +1,10 @@
 <?php
 
 use App\Http\Controllers\Back\Admin\BuildingController;
+use App\Http\Controllers\Back\Admin\BuildingExpenseController;
 use App\Http\Controllers\Back\Admin\FlatController;
 use App\Http\Controllers\Back\Admin\MonthlyBillController;
+use App\Http\Controllers\Back\Admin\UtilityBillController;
 use App\Http\Controllers\Back\Admin\ProfileController;
 use App\Http\Controllers\Back\Admin\TenantController;
 use App\Http\Controllers\Front\WelcomeController;
@@ -95,8 +97,9 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('/building/{buildingId}/flat/{flatId}/tenant/store',        [TenantController::class, 'store'])->name('tenants.store');
     Route::post('/building/{buildingId}/flat/{flatId}/tenant/assign',       [TenantController::class, 'assign'])->name('tenants.assign');
     Route::get('/building/{buildingId}/flat/{flatId}/tenant/{tenantId}',    [TenantController::class, 'show'])->name('tenants.show');
-    Route::get('/building/{buildingId}/flat/{flatId}/tenant/{tenantId}/edit',   [TenantController::class, 'edit'])->name('tenants.edit');
-    Route::put('/building/{buildingId}/flat/{flatId}/tenant/{tenantId}/update', [TenantController::class, 'update'])->name('tenants.update');
+    Route::get('/building/{buildingId}/flat/{flatId}/tenant/{tenantId}/edit',    [TenantController::class, 'edit'])->name('tenants.edit');
+    Route::put('/building/{buildingId}/flat/{flatId}/tenant/{tenantId}/update',  [TenantController::class, 'update'])->name('tenants.update');
+    Route::post('/building/{buildingId}/flat/{flatId}/tenant/{tenantId}/vacate', [TenantController::class, 'vacate'])->name('tenants.vacate');
 
 
     // Monthly Bill Routes (nested: building > flat > bills)
@@ -108,4 +111,21 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/building/{buildingId}/flat/{flatId}/bill/{billId}/collect',             [MonthlyBillController::class, 'collectForm'])->name('bills.collect.form');
     Route::post('/building/{buildingId}/flat/{flatId}/bill/{billId}/collect',            [MonthlyBillController::class, 'collectStore'])->name('bills.collect.store');
     Route::delete('/building/{buildingId}/flat/{flatId}/bill/{billId}/collection/{collectionId}/delete', [MonthlyBillController::class, 'deleteCollection'])->name('bills.collection.delete');
+
+    // Utility Bill Routes (nested under building)
+    Route::get('/building/{buildingId}/utility-bills',                    [UtilityBillController::class, 'index'])->name('utility.index');
+    Route::get('/building/{buildingId}/utility-bill/create',              [UtilityBillController::class, 'create'])->name('utility.create');
+    Route::post('/building/{buildingId}/utility-bill/store',              [UtilityBillController::class, 'store'])->name('utility.store');
+    Route::get('/building/{buildingId}/utility-bill/{billId}/edit',       [UtilityBillController::class, 'edit'])->name('utility.edit');
+    Route::put('/building/{buildingId}/utility-bill/{billId}/update',     [UtilityBillController::class, 'update'])->name('utility.update');
+    Route::post('/building/{buildingId}/utility-bill/{billId}/mark-paid', [UtilityBillController::class, 'markPaid'])->name('utility.mark-paid');
+    Route::delete('/building/{buildingId}/utility-bill/{billId}/delete',  [UtilityBillController::class, 'destroy'])->name('utility.destroy');
+
+    // Building Expenses Routes
+    Route::get('/building/{buildingId}/expenses',                   [BuildingExpenseController::class, 'index'])->name('expenses.index');
+    Route::get('/building/{buildingId}/expense/create',             [BuildingExpenseController::class, 'create'])->name('expenses.create');
+    Route::post('/building/{buildingId}/expense/store',             [BuildingExpenseController::class, 'store'])->name('expenses.store');
+    Route::get('/building/{buildingId}/expense/{expenseId}/edit',   [BuildingExpenseController::class, 'edit'])->name('expenses.edit');
+    Route::put('/building/{buildingId}/expense/{expenseId}/update', [BuildingExpenseController::class, 'update'])->name('expenses.update');
+    Route::delete('/building/{buildingId}/expense/{expenseId}/delete', [BuildingExpenseController::class, 'destroy'])->name('expenses.destroy');
 });

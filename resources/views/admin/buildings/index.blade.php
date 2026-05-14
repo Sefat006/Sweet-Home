@@ -63,19 +63,31 @@
                                 <td>{{ Str::limit($building->address, 50) }}</td>
                                 <td>
                                     <div class="d-flex gap-2 align-items-center">
-                                        <a href="{{ route('admin.building.show', $building->id) }}" title="View" style="color: #2563eb;">
+                                        {{-- Flats --}}
+                                        <a href="{{ route('admin.flats.index', $building->id) }}" title="Flats" style="color:#7c3aed;">
+                                            <i class="fa-solid fa-layer-group"></i>
+                                        </a>
+                                        {{-- Utility Bills --}}
+                                        <a href="{{ route('admin.utility.index', $building->id) }}" title="Utility Bills" style="color:#0891b2;">
+                                            <i class="fa-solid fa-bolt"></i>
+                                        </a>
+                                        {{-- Expenses --}}
+                                        <a href="{{ route('admin.expenses.index', $building->id) }}" title="Monthly Expenses" style="color:#b45309;">
+                                            <i class="fa-solid fa-money-bill-trend-up"></i>
+                                        </a>
+                                        {{-- View --}}
+                                        <a href="{{ route('admin.building.show', $building->id) }}" title="View" style="color:#2563eb;">
                                             <i class="fa-solid fa-eye"></i>
                                         </a>
-                                        <a href="{{ route('admin.flats.index', $building->id) }}" title="View Flats" style="color: #7c3aed;">
-                                            <i class="fa-solid fa-door-open"></i>
-                                        </a>
-                                        <a href="{{ route('admin.building.edit', $building->id) }}" title="Edit" style="color: #16a34a;">
+                                        {{-- Edit --}}
+                                        <a href="{{ route('admin.building.edit', $building->id) }}" title="Edit" style="color:#16a34a;">
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </a>
-                                        <form action="{{ route('admin.building.destroy', $building->id) }}" method="POST" style="display:inline-block;" onsubmit="return confirm('Are you sure you want to delete this building?')">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" style="border:none;background:none;color:red;">
+                                        {{-- Delete --}}
+                                        <form action="{{ route('admin.building.destroy', $building->id) }}" method="POST"
+                                              style="display:inline-block;" onsubmit="return confirm('Are you sure you want to delete this building?')">
+                                            @csrf @method('DELETE')
+                                            <button type="submit" style="border:none;background:none;color:red;" title="Delete">
                                                 <i class="fa-solid fa-trash"></i>
                                             </button>
                                         </form>

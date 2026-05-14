@@ -5,6 +5,9 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
+// Related models used in relationships
+// (Laravel resolves these via namespace if not imported, but explicit imports prevent issues)
+
 
 class Building extends Model
 {
@@ -38,13 +41,18 @@ class Building extends Model
         return $this->hasMany(Flat::class);
     }
 
-    // public function expenses()
-    // {
-    //     return $this->hasMany(BuildingExpense::class);
-    // }
+    public function expenses()
+    {
+        return $this->hasMany(BuildingExpense::class);
+    }
 
-    // public function utilityBills()
-    // {
-    //     return $this->hasMany(UtilityBill::class);
-    // }
+    public function monthlyBills()
+    {
+        return $this->hasMany(MonthlyBill::class);
+    }
+
+    public function utilityBills()
+    {
+        return $this->hasMany(UtilityBill::class);
+    }
 }
