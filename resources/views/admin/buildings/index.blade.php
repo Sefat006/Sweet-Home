@@ -66,6 +66,9 @@
                                         <a href="{{ route('admin.building.show', $building->id) }}" title="View" style="color: #2563eb;">
                                             <i class="fa-solid fa-eye"></i>
                                         </a>
+                                        <a href="{{ route('admin.flats.index', $building->id) }}" title="View Flats" style="color: #7c3aed;">
+                                            <i class="fa-solid fa-door-open"></i>
+                                        </a>
                                         <a href="{{ route('admin.building.edit', $building->id) }}" title="Edit" style="color: #16a34a;">
                                             <i class="fa-solid fa-pen-to-square"></i>
                                         </a>

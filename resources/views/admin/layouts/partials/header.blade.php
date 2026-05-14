@@ -8,7 +8,7 @@
 
                         <!-- Sidebar Toggle -->
                         <button class="sidebar-toggler">
-                            <img src="{{ asset('admin/assets/images/icons/header') }}" alt="">
+                            <img src="{{ asset('admin/assets/images/icons/header/bars.svg') }}" alt="">
                         </button>
 
                         <a href="{{ url('/') }}" target="_blank"

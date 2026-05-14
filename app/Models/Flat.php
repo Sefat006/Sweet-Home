@@ -49,15 +49,15 @@ class Flat extends Model
         return $this->belongsTo(Building::class);
     }
 
-    // public function flatTenants()
-    // {
-    //     return $this->hasMany(FlatTenant::class);
-    // }
+    public function flatTenants()
+    {
+        return $this->hasMany(FlatTenant::class);
+    }
 
-    // public function activeTenant()
-    // {
-    //     return $this->hasOne(FlatTenant::class)->where('status', 'active');
-    // }
+    public function activeTenant()
+    {
+        return $this->hasOne(FlatTenant::class)->where('status', 'active');
+    }
 
     // public function monthlyBills()
     // {

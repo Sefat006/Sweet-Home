@@ -1,7 +1,10 @@
 <?php
 
 use App\Http\Controllers\Back\Admin\BuildingController;
+use App\Http\Controllers\Back\Admin\FlatController;
+use App\Http\Controllers\Back\Admin\MonthlyBillController;
 use App\Http\Controllers\Back\Admin\ProfileController;
+use App\Http\Controllers\Back\Admin\TenantController;
 use App\Http\Controllers\Front\WelcomeController;
 use App\Http\Controllers\Back\Auth\AuthController;
 use App\Http\Controllers\Back\SuperAdmin\SuperAdminController;
@@ -71,4 +74,38 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/building/{id}/edit', [BuildingController::class, 'edit'])->name('building.edit');
     Route::put('/building/{id}/update', [BuildingController::class, 'update'])->name('building.update');
     Route::delete('/building/{id}/delete', [BuildingController::class, 'destroy'])->name('building.destroy');
+
+
+    // Flat Routes
+    Route::get('/building/{buildingId}/flats', [FlatController::class, 'index'])->name('flats.index');
+    Route::get('/building/{buildingId}/flat/create', [FlatController::class, 'create'])->name('flats.create');
+    Route::post('/building/{buildingId}/flat/store', [FlatController::class, 'store'])->name('flats.store');
+    Route::get('/building/{buildingId}/flat/{flatId}/show', [FlatController::class, 'show'])->name('flats.show');
+    Route::get('/building/{buildingId}/flat/{flatId}/edit', [FlatController::class, 'edit'])->name('flats.edit');
+    Route::put('/building/{buildingId}/flat/{flatId}/update', [FlatController::class, 'update'])->name('flats.update');
+    Route::delete('/building/{buildingId}/flat/{flatId}/delete', [FlatController::class, 'destroy'])->name('flats.destroy');
+
+
+
+    // Tenant Routes (nested under building > flat)
+    Route::get('/building/{buildingId}/flat/{flatId}/tenants',              [TenantController::class, 'index'])->name('tenants.index');
+    Route::get('/building/{buildingId}/flat/{flatId}/tenant/enroll',        [TenantController::class, 'enroll'])->name('tenants.enroll');
+    Route::get('/building/{buildingId}/flat/{flatId}/tenant/search',        [TenantController::class, 'search'])->name('tenants.search');
+    Route::get('/building/{buildingId}/flat/{flatId}/tenant/create',        [TenantController::class, 'create'])->name('tenants.create');
+    Route::post('/building/{buildingId}/flat/{flatId}/tenant/store',        [TenantController::class, 'store'])->name('tenants.store');
+    Route::post('/building/{buildingId}/flat/{flatId}/tenant/assign',       [TenantController::class, 'assign'])->name('tenants.assign');
+    Route::get('/building/{buildingId}/flat/{flatId}/tenant/{tenantId}',    [TenantController::class, 'show'])->name('tenants.show');
+    Route::get('/building/{buildingId}/flat/{flatId}/tenant/{tenantId}/edit',   [TenantController::class, 'edit'])->name('tenants.edit');
+    Route::put('/building/{buildingId}/flat/{flatId}/tenant/{tenantId}/update', [TenantController::class, 'update'])->name('tenants.update');
+
+
+    // Monthly Bill Routes (nested: building > flat > bills)
+    Route::get('/building/{buildingId}/flat/{flatId}/bills',                             [MonthlyBillController::class, 'index'])->name('bills.index');
+    Route::get('/building/{buildingId}/flat/{flatId}/bill/create',                       [MonthlyBillController::class, 'create'])->name('bills.create');
+    Route::post('/building/{buildingId}/flat/{flatId}/bill/store',                       [MonthlyBillController::class, 'store'])->name('bills.store');
+    Route::get('/building/{buildingId}/flat/{flatId}/bill/{billId}',                     [MonthlyBillController::class, 'show'])->name('bills.show');
+    Route::delete('/building/{buildingId}/flat/{flatId}/bill/{billId}/delete',           [MonthlyBillController::class, 'destroy'])->name('bills.destroy');
+    Route::get('/building/{buildingId}/flat/{flatId}/bill/{billId}/collect',             [MonthlyBillController::class, 'collectForm'])->name('bills.collect.form');
+    Route::post('/building/{buildingId}/flat/{flatId}/bill/{billId}/collect',            [MonthlyBillController::class, 'collectStore'])->name('bills.collect.store');
+    Route::delete('/building/{buildingId}/flat/{flatId}/bill/{billId}/collection/{collectionId}/delete', [MonthlyBillController::class, 'deleteCollection'])->name('bills.collection.delete');
 });

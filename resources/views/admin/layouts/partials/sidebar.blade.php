@@ -68,7 +68,7 @@
         </li>
         <li class="">
             <a href="{{ route('admin.building.index')}}">
-                <i class="fa-solid fa-user"></i>
+                <i class="fa-solid fa-building"></i>
                 <span>Buildings</span>
             </a>
         </li>

@@ -54,15 +54,15 @@ if (!function_exists('isManager')) {
 }
 
 
-// if (!function_exists('generateTenantId')) {
-//     function generateTenantId(): string
-//     {
-//         $last = \App\Models\Tenant::whereNotNull('tenant_id')->orderByDesc('id')->first();
+if (!function_exists('generateTenantId')) {
+    function generateTenantId(): string
+    {
+        $last = \App\Models\Tenant::whereNotNull('tenant_id')->orderByDesc('id')->first();
 
-//         $number = $last ? ((int) substr($last->tenant_id, 4)) + 1 : 1;
-//         return 'TNT-' . str_pad($number, 6, '0', STR_PAD_LEFT);
-//     }
-// }
+        $number = $last ? ((int) substr($last->tenant_id, 4)) + 1 : 1;
+        return 'TNT-' . str_pad($number, 6, '0', STR_PAD_LEFT);
+    }
+}
 
 if (!function_exists('calcBillRemaining')) {
     /**
