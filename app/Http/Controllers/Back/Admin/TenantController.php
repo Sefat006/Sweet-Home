@@ -53,8 +53,9 @@ class TenantController extends Controller
         $flat     = $this->getFlat($buildingId, $flatId);
         $building = $flat->building;
 
-        // Block if already occupied
-        if ($flat->status === 'occupied') {
+        // Block if already has an active tenant
+        $hasActive = FlatTenant::where('flat_id', $flat->id)->where('status', 'active')->exists();
+        if ($hasActive) {
             return redirect()->route('admin.tenants.index', [$buildingId, $flatId])
                 ->with('error', 'This flat already has an active tenant. Vacate first.');
         }
@@ -250,7 +251,7 @@ class TenantController extends Controller
         $tenant    = Tenant::findOrFail($tenantId);
         $flatTenant = FlatTenant::where('flat_id', $flat->id)
             ->where('tenant_id', $tenantId)
-            ->where('status', 'active')
+            ->latest()
             ->firstOrFail();
         return view('admin.tenants.edit', compact('building', 'flat', 'tenant', 'flatTenant'));
     }
@@ -263,7 +264,7 @@ class TenantController extends Controller
         $tenant     = Tenant::findOrFail($tenantId);
         $flatTenant = FlatTenant::where('flat_id', $flat->id)
             ->where('tenant_id', $tenantId)
-            ->where('status', 'active')
+            ->latest()
             ->firstOrFail();
 
         $request->validate([

@@ -83,7 +83,12 @@
                         </div>
                     @else
                         <div class="text-center py-4">
-                            <h5 class="text-muted">This flat is currently vacant.</h5>
+                            @if($flat->status === 'occupied')
+                                <h5 class="text-warning">This flat is marked as occupied, but no active tenant is assigned!</h5>
+                                <p class="text-muted mb-0">Please enroll a tenant or change the flat status to vacant.</p>
+                            @else
+                                <h5 class="text-muted">This flat is currently vacant.</h5>
+                            @endif
                         </div>
                     @endif
                 </div>
@@ -120,11 +125,14 @@
                                     <td>{{ $h->start_date ? $h->start_date->format('d M, Y') : 'N/A' }}</td>
                                     <td>{{ $h->end_date ? $h->end_date->format('d M, Y') : 'N/A' }}</td>
                                     <td>
-                                        <span class="badge bg-secondary">Inactive</span>
+                                        <span class="badge bg-secondary">{{ $h->status === 'inactive' ? 'Vacated' : ucfirst($h->status) }}</span>
                                     </td>
                                     <td>
-                                        <a href="{{ route('admin.tenants.show', [$building->id, $flat->id, $h->tenant_id]) }}" title="View Profile" style="color:#2563eb;">
+                                        <a href="{{ route('admin.tenants.show', [$building->id, $flat->id, $h->tenant_id]) }}" title="View Profile" style="color:#2563eb;" class="me-2">
                                             <i class="fa-solid fa-eye"></i>
+                                        </a>
+                                        <a href="{{ route('admin.tenants.edit', [$building->id, $flat->id, $h->tenant_id]) }}" title="Edit Details" style="color:#10b981;">
+                                            <i class="fa-solid fa-edit"></i>
                                         </a>
                                     </td>
                                 </tr>

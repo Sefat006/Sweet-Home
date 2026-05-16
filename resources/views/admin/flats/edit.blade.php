@@ -7,7 +7,7 @@
             <div class="breadcrumb__content">
                 <div class="breadcrumb__content__left">
                     <div class="breadcrumb__title">
-                        <h2 style="color:white !important;">Add New Flat</h2>
+                        <h2 style="color:white !important;">Edit Flat: {{ $flat->flat_name }}</h2>
                         <p style="color:white !important;" class="mb-0">
                             Building: <strong>{{ $building->name }}</strong>
                         </p>
@@ -31,8 +31,9 @@
     <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
 
-    <form action="{{ route('admin.flats.store', $building->id) }}" method="POST" enctype="multipart/form-data">
+    <form action="{{ route('admin.flats.update', [$building->id, $flat->id]) }}" method="POST" enctype="multipart/form-data">
         @csrf
+        @method('PUT')
 
         {{-- ── BASIC INFO ── --}}
         <div class="row">
@@ -44,36 +45,36 @@
                         <div class="col-md-3">
                             <label class="form-label">Flat Name <span class="text-danger">*</span></label>
                             <input type="text" name="flat_name" class="form-control @error('flat_name') is-invalid @enderror"
-                                   value="{{ old('flat_name') }}" placeholder="e.g. 2A" required>
+                                   value="{{ old('flat_name', $flat->flat_name) }}" placeholder="e.g. 2A" required>
                             @error('flat_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
 
                         <div class="col-md-3">
                             <label class="form-label">Floor</label>
                             <input type="text" name="floor" class="form-control @error('floor') is-invalid @enderror"
-                                   value="{{ old('floor') }}" placeholder="e.g. 2nd">
+                                   value="{{ old('floor', $flat->floor) }}" placeholder="e.g. 2nd">
                             @error('floor')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
 
                         <div class="col-md-3">
                             <label class="form-label">Intercom Number</label>
                             <input type="text" name="intercom_number" class="form-control @error('intercom_number') is-invalid @enderror"
-                                   value="{{ old('intercom_number') }}" placeholder="e.g. 201">
+                                   value="{{ old('intercom_number', $flat->intercom_number) }}" placeholder="e.g. 201">
                             @error('intercom_number')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
 
                         <div class="col-md-3">
                             <label class="form-label">Flat Size</label>
                             <input type="text" name="flat_size" class="form-control @error('flat_size') is-invalid @enderror"
-                                   value="{{ old('flat_size') }}" placeholder="e.g. 1200 sqft">
+                                   value="{{ old('flat_size', $flat->flat_size) }}" placeholder="e.g. 1200 sqft">
                             @error('flat_size')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
 
                         <div class="col-md-3">
                             <label class="form-label">Status <span class="text-danger">*</span></label>
                             <select name="status" class="form-select @error('status') is-invalid @enderror" required>
-                                <option value="vacant"   {{ old('status') === 'vacant'   ? 'selected' : '' }}>Vacant</option>
-                                <option value="occupied" {{ old('status') === 'occupied' ? 'selected' : '' }}>Occupied</option>
+                                <option value="vacant"   {{ old('status', $flat->status) === 'vacant'   ? 'selected' : '' }}>Vacant</option>
+                                <option value="occupied" {{ old('status', $flat->status) === 'occupied' ? 'selected' : '' }}>Occupied</option>
                             </select>
                             @error('status')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
@@ -93,8 +94,8 @@
                         <div class="col-md-3">
                             <label class="form-label">Bill Status <span class="text-danger">*</span></label>
                             <select name="bill_status" class="form-select @error('bill_status') is-invalid @enderror" required>
-                                <option value="inactive" {{ old('bill_status','inactive') === 'inactive' ? 'selected' : '' }}>Inactive</option>
-                                <option value="active"   {{ old('bill_status') === 'active'             ? 'selected' : '' }}>Active</option>
+                                <option value="inactive" {{ old('bill_status', $flat->bill_status) === 'inactive' ? 'selected' : '' }}>Inactive</option>
+                                <option value="active"   {{ old('bill_status', $flat->bill_status) === 'active'   ? 'selected' : '' }}>Active</option>
                             </select>
                             @error('bill_status')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
@@ -104,12 +105,17 @@
                             <input type="file" name="image" class="form-control @error('image') is-invalid @enderror"
                                    accept="image/jpeg,image/png,image/jpg">
                             @error('image')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            @if($flat->image)
+                            <div class="mt-2">
+                                <img src="{{ asset('storage/' . $flat->image) }}" alt="Flat Image" width="80" class="img-thumbnail">
+                            </div>
+                            @endif
                         </div>
 
                         <div class="col-md-12">
                             <label class="form-label">Flat Details</label>
                             <textarea name="flat_details" class="form-control @error('flat_details') is-invalid @enderror"
-                                      rows="3" placeholder="Any additional details about the flat...">{{ old('flat_details') }}</textarea>
+                                      rows="3" placeholder="Any additional details about the flat...">{{ old('flat_details', $flat->flat_details) }}</textarea>
                             @error('flat_details')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                     </div>
@@ -142,7 +148,7 @@
                             <label class="form-label">{{ $label }} (৳)</label>
                             <input type="number" name="{{ $field }}" step="0.01" min="0"
                                    class="form-control rent-field @error($field) is-invalid @enderror"
-                                   value="{{ old($field, 0) }}" placeholder="0">
+                                   value="{{ old($field, $flat->$field ?? 0) }}" placeholder="0">
                             @error($field)<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
                         @endforeach
@@ -160,7 +166,7 @@
         <div class="row">
             <div class="col-md-12 d-flex gap-2 justify-content-end mb-4">
                 <a href="{{ route('admin.flats.index', $building->id) }}" class="btn btn-secondary">Cancel</a>
-                <button type="submit" class="btn btn-blue">Save Flat</button>
+                <button type="submit" class="btn btn-blue">Update Flat</button>
             </div>
         </div>
     </form>
