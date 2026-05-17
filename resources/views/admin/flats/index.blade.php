@@ -113,10 +113,6 @@
                                         <a href="{{ route('admin.tenants.index', [$building->id, $flat->id]) }}" title="Tenants" style="color:#7c3aed;">
                                             <i class="fa-solid fa-users"></i>
                                         </a>
-                                        {{-- Monthly Bill --}}
-                                        <a href="{{ route('admin.bills.index', [$building->id, $flat->id]) }}" title="Bills" style="color:#d97706;">
-                                            <i class="fa-solid fa-file-invoice-dollar"></i>
-                                        </a>
                                         {{-- Delete --}}
                                         <form action="{{ route('admin.flats.destroy', [$building->id, $flat->id]) }}"
                                               method="POST" style="display:inline-block;"

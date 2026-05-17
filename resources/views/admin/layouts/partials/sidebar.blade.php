@@ -92,6 +92,12 @@
                 <span>Buildings</span>
             </a>
         </li>
+        <li class="">
+            <a href="{{ route('admin.rent.overview')}}">
+                <i class="fa-solid fa-file-invoice-dollar"></i>
+                <span>Rent Overview</span>
+            </a>
+        </li>
         @endif
     </ul>
 </div>

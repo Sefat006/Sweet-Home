@@ -73,6 +73,9 @@
                                 <a href="{{ route('admin.tenants.edit', [$building->id, $flat->id, $activeTenant->tenant_id]) }}" class="btn btn-primary btn-sm mb-2" style="width:120px;">
                                     <i class="fa-solid fa-edit"></i> Edit Details
                                 </a><br>
+                                <a href="{{ route('admin.bills.index', [$building->id, $flat->id]) }}" class="btn btn-warning btn-sm mb-2" style="width:120px;">
+                                    <i class="fa-solid fa-file-invoice-dollar"></i> Bills
+                                </a><br>
                                 <form action="{{ route('admin.tenants.vacate', [$building->id, $flat->id, $activeTenant->tenant_id]) }}" method="POST" onsubmit="return confirm('Are you sure you want to vacate this tenant?');">
                                     @csrf
                                     <button type="submit" class="btn btn-danger btn-sm" style="width:120px;">
@@ -131,8 +134,11 @@
                                         <a href="{{ route('admin.tenants.show', [$building->id, $flat->id, $h->tenant_id]) }}" title="View Profile" style="color:#2563eb;" class="me-2">
                                             <i class="fa-solid fa-eye"></i>
                                         </a>
-                                        <a href="{{ route('admin.tenants.edit', [$building->id, $flat->id, $h->tenant_id]) }}" title="Edit Details" style="color:#10b981;">
+                                        <a href="{{ route('admin.tenants.edit', [$building->id, $flat->id, $h->tenant_id]) }}" title="Edit Details" style="color:#10b981;" class="me-2">
                                             <i class="fa-solid fa-edit"></i>
+                                        </a>
+                                        <a href="{{ route('admin.bills.index', [$building->id, $flat->id]) }}" title="View Bills" style="color:#d97706;">
+                                            <i class="fa-solid fa-file-invoice-dollar"></i>
                                         </a>
                                     </td>
                                 </tr>

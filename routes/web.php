@@ -4,6 +4,7 @@ use App\Http\Controllers\Back\Admin\BuildingController;
 use App\Http\Controllers\Back\Admin\BuildingExpenseController;
 use App\Http\Controllers\Back\Admin\FlatController;
 use App\Http\Controllers\Back\Admin\MonthlyBillController;
+use App\Http\Controllers\Back\Admin\RentOverviewController;
 use App\Http\Controllers\Back\Admin\UtilityBillController;
 use App\Http\Controllers\Back\Admin\ProfileController;
 use App\Http\Controllers\Back\Admin\TenantController;
@@ -128,4 +129,8 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/building/{buildingId}/expense/{expenseId}/edit',   [BuildingExpenseController::class, 'edit'])->name('expenses.edit');
     Route::put('/building/{buildingId}/expense/{expenseId}/update', [BuildingExpenseController::class, 'update'])->name('expenses.update');
     Route::delete('/building/{buildingId}/expense/{expenseId}/delete', [BuildingExpenseController::class, 'destroy'])->name('expenses.destroy');
+
+    // Rent Overview Routes
+    Route::get('/rent-overview',                          [RentOverviewController::class, 'index'])->name('rent.overview');
+    Route::post('/rent-overview/toggle-paid/{billId}',    [RentOverviewController::class, 'togglePaid'])->name('rent.overview.toggle');
 });
