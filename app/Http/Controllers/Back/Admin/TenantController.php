@@ -110,9 +110,25 @@ class TenantController extends Controller
             'birth_cert_document'        => 'nullable|file|mimes:pdf,jpg,png|max:2048',
             'dob'                        => 'nullable|date',
             'blood_group'                => 'nullable|string|max:10',
+            'religion'                   => 'nullable|string|max:100',
+            'nationality'                => 'nullable|string|max:100',
             'gender'                     => 'nullable|in:male,female,other',
             'marital_status'             => 'nullable|in:single,married,divorced,widowed',
+            'spouse_name'                => 'nullable|string|max:200',
+            'spouse_contact_number'      => 'nullable|string|max:20',
+            'spouse_father_name'         => 'nullable|string|max:200',
+            'spouse_mother_name'         => 'nullable|string|max:200',
+            'spouse_blood_group'         => 'nullable|string|max:10',
+            'spouse_date_of_birth'       => 'nullable|date',
+            'passport_number'            => 'nullable|string|max:50',
+            'passport_expiry'            => 'nullable|date',
+            'passport_document'          => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+            'driving_licence_number'     => 'nullable|string|max:50',
+            'driving_licence_expiry'     => 'nullable|date',
+            'driving_licence_document'   => 'nullable|file|mimes:pdf,jpg,png|max:2048',
             'occupation'                 => 'nullable|string|max:200',
+            'occupation_company'         => 'nullable|string|max:200',
+            'occupation_address'         => 'nullable|string',
             'occupation_document'        => 'nullable|file|mimes:pdf,jpg,png|max:2048',
             'present_address'            => 'nullable|string',
             'permanent_address'          => 'nullable|string',
@@ -124,6 +140,10 @@ class TenantController extends Controller
             'family_members_count'       => 'nullable|integer|min:1',
             'vehicle_info'               => 'nullable|string|max:255',
             'notes'                      => 'nullable|string',
+            'no_of_children'             => 'nullable|integer|min:0',
+            'child_name'                 => 'nullable|array',
+            'child_gender'               => 'nullable|array',
+            'child_dob'                  => 'nullable|array',
             // Family members
             'family_name'                => 'nullable|array',
             'family_name.*'              => 'nullable|string|max:200',
@@ -158,6 +178,20 @@ class TenantController extends Controller
                 }
             }
 
+            // Build children info
+            $children = [];
+            if ($request->no_of_children > 0 && $request->has('child_name') && is_array($request->child_name)) {
+                for ($i = 0; $i < $request->no_of_children; $i++) {
+                    if (isset($request->child_name[$i]) && $request->child_name[$i] != '') {
+                        $children[] = [
+                            'name'   => $request->child_name[$i],
+                            'gender' => $request->child_gender[$i] ?? '',
+                            'dob'    => $request->child_dob[$i] ?? ''
+                        ];
+                    }
+                }
+            }
+
             // Upload tenant files
             $tenant = Tenant::create([
                 'tenant_id'                  => generateTenantId(),
@@ -171,9 +205,25 @@ class TenantController extends Controller
                 'birth_cert_document'        => $request->hasFile('birth_cert_document') ? $request->file('birth_cert_document')->store('admin/assets/documents/tenants/birth-cert', 'public') : null,
                 'dob'                        => $request->dob,
                 'blood_group'                => $request->blood_group,
+                'religion'                   => $request->religion,
+                'nationality'                => $request->nationality,
                 'gender'                     => $request->gender,
                 'marital_status'             => $request->marital_status,
+                'spouse_name'                => $request->marital_status === 'married' ? $request->spouse_name : null,
+                'spouse_contact_number'      => $request->marital_status === 'married' ? $request->spouse_contact_number : null,
+                'spouse_father_name'         => $request->marital_status === 'married' ? $request->spouse_father_name : null,
+                'spouse_mother_name'         => $request->marital_status === 'married' ? $request->spouse_mother_name : null,
+                'spouse_blood_group'         => $request->marital_status === 'married' ? $request->spouse_blood_group : null,
+                'spouse_date_of_birth'       => $request->marital_status === 'married' ? $request->spouse_date_of_birth : null,
+                'passport_number'            => $request->passport_number,
+                'passport_expiry'            => $request->passport_expiry,
+                'passport_document'          => $request->hasFile('passport_document') ? $request->file('passport_document')->store('admin/assets/documents/tenants/passport', 'public') : null,
+                'driving_licence_number'     => $request->driving_licence_number,
+                'driving_licence_expiry'     => $request->driving_licence_expiry,
+                'driving_licence_document'   => $request->hasFile('driving_licence_document') ? $request->file('driving_licence_document')->store('admin/assets/documents/tenants/driving_licence', 'public') : null,
                 'occupation'                 => $request->occupation,
+                'occupation_company'         => $request->occupation_company,
+                'occupation_address'         => $request->occupation_address,
                 'occupation_document'        => $request->hasFile('occupation_document') ? $request->file('occupation_document')->store('admin/assets/documents/tenants/occupation', 'public') : null,
                 'present_address'            => $request->present_address,
                 'permanent_address'          => $request->permanent_address,
@@ -184,6 +234,8 @@ class TenantController extends Controller
                 'reason_to_change'           => $request->reason_to_change,
                 'family_members_count'       => $request->family_members_count ?? 1,
                 'family_members'             => $familyMembers ?: null,
+                'no_of_children'             => $request->marital_status === 'married' ? ($request->no_of_children ?? 0) : 0,
+                'children_info'              => $request->marital_status === 'married' ? ($children ?: null) : null,
                 'vehicle_info'               => $request->vehicle_info,
                 'notes'                      => $request->notes,
             ]);
@@ -239,7 +291,13 @@ class TenantController extends Controller
         $flatTenant = FlatTenant::where('flat_id', $flat->id)
             ->where('tenant_id', $tenantId)
             ->latest()->first();
-        return view('admin.tenants.show', compact('building', 'flat', 'tenant', 'flatTenant'));
+        
+        $bills = \App\Models\MonthlyBill::where('flat_tenant_id', $flatTenant->id)
+            ->orderBy('bill_year', 'desc')
+            ->orderBy('bill_month_number', 'desc')
+            ->get();
+            
+        return view('admin.tenants.show', compact('building', 'flat', 'tenant', 'flatTenant', 'bills'));
     }
 
     // ─── 8. Edit tenant ───────────────────────────────────────────────
@@ -278,9 +336,25 @@ class TenantController extends Controller
             'birth_cert_document'        => 'nullable|file|mimes:pdf,jpg,png|max:2048',
             'dob'                        => 'nullable|date',
             'blood_group'                => 'nullable|string|max:10',
+            'religion'                   => 'nullable|string|max:100',
+            'nationality'                => 'nullable|string|max:100',
             'gender'                     => 'nullable|in:male,female,other',
             'marital_status'             => 'nullable|in:single,married,divorced,widowed',
+            'spouse_name'                => 'nullable|string|max:200',
+            'spouse_contact_number'      => 'nullable|string|max:20',
+            'spouse_father_name'         => 'nullable|string|max:200',
+            'spouse_mother_name'         => 'nullable|string|max:200',
+            'spouse_blood_group'         => 'nullable|string|max:10',
+            'spouse_date_of_birth'       => 'nullable|date',
+            'passport_number'            => 'nullable|string|max:50',
+            'passport_expiry'            => 'nullable|date',
+            'passport_document'          => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+            'driving_licence_number'     => 'nullable|string|max:50',
+            'driving_licence_expiry'     => 'nullable|date',
+            'driving_licence_document'   => 'nullable|file|mimes:pdf,jpg,png|max:2048',
             'occupation'                 => 'nullable|string|max:200',
+            'occupation_company'         => 'nullable|string|max:200',
+            'occupation_address'         => 'nullable|string',
             'occupation_document'        => 'nullable|file|mimes:pdf,jpg,png|max:2048',
             'present_address'            => 'nullable|string',
             'permanent_address'          => 'nullable|string',
@@ -292,6 +366,10 @@ class TenantController extends Controller
             'family_members_count'       => 'nullable|integer|min:1',
             'vehicle_info'               => 'nullable|string|max:255',
             'notes'                      => 'nullable|string',
+            'no_of_children'             => 'nullable|integer|min:0',
+            'child_name'                 => 'nullable|array',
+            'child_gender'               => 'nullable|array',
+            'child_dob'                  => 'nullable|array',
             'family_name'                => 'nullable|array',
             'family_name.*'              => 'nullable|string|max:200',
             'family_relation'            => 'nullable|array',
@@ -321,15 +399,41 @@ class TenantController extends Controller
                 }
             }
 
-            $tenantData = $request->except(['_token','_method','family_name','family_relation','family_nid',
+            $children = [];
+            if ($request->no_of_children > 0 && $request->has('child_name') && is_array($request->child_name)) {
+                for ($i = 0; $i < $request->no_of_children; $i++) {
+                    if (isset($request->child_name[$i]) && $request->child_name[$i] != '') {
+                        $children[] = [
+                            'name'   => $request->child_name[$i],
+                            'gender' => $request->child_gender[$i] ?? '',
+                            'dob'    => $request->child_dob[$i] ?? ''
+                        ];
+                    }
+                }
+            }
+
+            $tenantData = $request->except(['_token','_method','family_name','family_relation','family_nid', 'child_name', 'child_gender', 'child_dob',
                 'advance_amount','advance_document','agreement_document','police_form_document','notice_document','house_rent_copy','start_date']);
 
-            foreach (['image','nid_document','birth_cert_document','occupation_document'] as $file) {
+            foreach (['image','nid_document','birth_cert_document','occupation_document','passport_document','driving_licence_document'] as $file) {
                 if ($request->hasFile($file)) {
                     $tenantData[$file] = $request->file($file)->store("admin/assets/documents/tenants/{$file}", 'public');
                 } else {
                     unset($tenantData[$file]);
                 }
+            }
+
+            if ($request->marital_status !== 'married') {
+                $tenantData['spouse_name'] = null;
+                $tenantData['spouse_contact_number'] = null;
+                $tenantData['spouse_father_name'] = null;
+                $tenantData['spouse_mother_name'] = null;
+                $tenantData['spouse_blood_group'] = null;
+                $tenantData['spouse_date_of_birth'] = null;
+                $tenantData['no_of_children'] = 0;
+                $tenantData['children_info'] = null;
+            } else {
+                $tenantData['children_info'] = $children ?: null;
             }
 
             $tenantData['family_members'] = $familyMembers ?: null;
