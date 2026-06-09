@@ -98,6 +98,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::post('/building/{buildingId}/flat/{flatId}/tenant/store',        [TenantController::class, 'store'])->name('tenants.store');
     Route::post('/building/{buildingId}/flat/{flatId}/tenant/assign',       [TenantController::class, 'assign'])->name('tenants.assign');
     Route::get('/building/{buildingId}/flat/{flatId}/tenant/{tenantId}',    [TenantController::class, 'show'])->name('tenants.show');
+    Route::get('/building/{buildingId}/flat/{flatId}/tenant/{tenantId}/download', [TenantController::class, 'download'])->name('tenants.download');
     Route::get('/building/{buildingId}/flat/{flatId}/tenant/{tenantId}/edit',    [TenantController::class, 'edit'])->name('tenants.edit');
     Route::put('/building/{buildingId}/flat/{flatId}/tenant/{tenantId}/update',  [TenantController::class, 'update'])->name('tenants.update');
     Route::post('/building/{buildingId}/flat/{flatId}/tenant/{tenantId}/vacate', [TenantController::class, 'vacate'])->name('tenants.vacate');
@@ -133,4 +134,46 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     // Rent Overview Routes
     Route::get('/rent-overview',                          [RentOverviewController::class, 'index'])->name('rent.overview');
     Route::post('/rent-overview/toggle-paid/{billId}',    [RentOverviewController::class, 'togglePaid'])->name('rent.overview.toggle');
+});
+
+// ─── Utility Deployment Routes (Shared Hosting) ──────────────────────────────
+Route::prefix('deploy-setup')->group(function () {
+    // Run migrations
+    Route::get('/migrate', function () {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('migrate', ['--force' => true]);
+            return response("Migrations run successfully:\n" . \Illuminate\Support\Facades\Artisan::output(), 200)
+                ->header('Content-Type', 'text/plain');
+        } catch (\Exception $e) {
+            return response("Migration Error: " . $e->getMessage(), 500)
+                ->header('Content-Type', 'text/plain');
+        }
+    });
+
+    // Create storage link symlink
+    Route::get('/storage-link', function () {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('storage:link');
+            return response("Storage symlink created successfully:\n" . \Illuminate\Support\Facades\Artisan::output(), 200)
+                ->header('Content-Type', 'text/plain');
+        } catch (\Exception $e) {
+            return response("Storage Link Error: " . $e->getMessage(), 500)
+                ->header('Content-Type', 'text/plain');
+        }
+    });
+
+    // Clear Laravel caches
+    Route::get('/clear-cache', function () {
+        try {
+            \Illuminate\Support\Facades\Artisan::call('config:clear');
+            \Illuminate\Support\Facades\Artisan::call('cache:clear');
+            \Illuminate\Support\Facades\Artisan::call('route:clear');
+            \Illuminate\Support\Facades\Artisan::call('view:clear');
+            return response("All Laravel caches cleared successfully!\n", 200)
+                ->header('Content-Type', 'text/plain');
+        } catch (\Exception $e) {
+            return response("Cache Clear Error: " . $e->getMessage(), 500)
+                ->header('Content-Type', 'text/plain');
+        }
+    });
 });

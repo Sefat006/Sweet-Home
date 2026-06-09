@@ -146,7 +146,7 @@
                                 <td>
                                     <div class="d-flex gap-2 align-items-center flex-wrap">
                                         @if($bill->document)
-                                            <a href="{{ asset('storage/' . $bill->document) }}" target="_blank" title="View Document" style="color:#0ea5e9;">
+                                            <a href="{{ asset($bill->document) }}" target="_blank" title="View Document" style="color:#0ea5e9;">
                                                 <i class="fa-solid fa-file-pdf"></i>
                                             </a>
                                         @endif

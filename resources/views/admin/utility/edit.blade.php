@@ -103,7 +103,7 @@
                                 <input type="file" name="document" class="form-control" accept=".pdf,.jpg,.jpeg,.png">
                                 @if($bill->document)
                                     <small class="text-muted d-block mt-1">
-                                        <a href="{{ asset('storage/' . $bill->document) }}" target="_blank">View current document</a>
+                                        <a href="{{ asset($bill->document) }}" target="_blank">View current document</a>
                                     </small>
                                 @endif
                             </div>

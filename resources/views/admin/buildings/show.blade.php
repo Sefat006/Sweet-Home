@@ -57,7 +57,7 @@
                         <div class="col-md-3"><strong>Logo:</strong></div>
                         <div class="col-md-9">
                             @if($building->logo)
-                                <img src="{{ asset('storage/' . $building->logo) }}" width="150" style="max-width: 100%; height: auto; border: 1px solid #ddd; padding: 5px; border-radius: 5px;" alt="Logo">
+                                <img src="{{ asset($building->logo) }}" width="150" style="max-width: 100%; height: auto; border: 1px solid #ddd; padding: 5px; border-radius: 5px;" alt="Logo">
                             @else
                                 <span class="text-muted">N/A</span>
                             @endif
@@ -97,27 +97,27 @@
                     <div class="row mt-4">
                         <div class="col-md-3 mb-2">
                             @if($building->holding_tax_document)
-                                <a href="{{ asset('storage/' . $building->holding_tax_document) }}" target="_blank" class="btn btn-sm btn-outline-primary">View Holding Tax Doc</a>
+                                <a href="{{ asset($building->holding_tax_document) }}" target="_blank" class="btn btn-sm btn-outline-primary">View Holding Tax Doc</a>
                             @endif
                         </div>
                         <div class="col-md-3 mb-2">
                             @if($building->khajna_document)
-                                <a href="{{ asset('storage/' . $building->khajna_document) }}" target="_blank" class="btn btn-sm btn-outline-primary">View Khajna Doc</a>
+                                <a href="{{ asset($building->khajna_document) }}" target="_blank" class="btn btn-sm btn-outline-primary">View Khajna Doc</a>
                             @endif
                         </div>
                         <div class="col-md-3 mb-2">
                             @if($building->dolil_document)
-                                <a href="{{ asset('storage/' . $building->dolil_document) }}" target="_blank" class="btn btn-sm btn-outline-primary">View Dolil</a>
+                                <a href="{{ asset($building->dolil_document) }}" target="_blank" class="btn btn-sm btn-outline-primary">View Dolil</a>
                             @endif
                         </div>
                         <div class="col-md-3 mb-2">
                             @if($building->noksha_document)
-                                <a href="{{ asset('storage/' . $building->noksha_document) }}" target="_blank" class="btn btn-sm btn-outline-primary">View Noksha</a>
+                                <a href="{{ asset($building->noksha_document) }}" target="_blank" class="btn btn-sm btn-outline-primary">View Noksha</a>
                             @endif
                         </div>
                         <div class="col-md-3 mb-2">
                             @if($building->mutation_document)
-                                <a href="{{ asset('storage/' . $building->mutation_document) }}" target="_blank" class="btn btn-sm btn-outline-primary">View Mutation</a>
+                                <a href="{{ asset($building->mutation_document) }}" target="_blank" class="btn btn-sm btn-outline-primary">View Mutation</a>
                             @endif
                         </div>
                     </div>
@@ -154,7 +154,7 @@
                                 <div class="col-md-3"><strong>Image:</strong></div>
                                 <div class="col-md-9">
                                     @if($sec->image)
-                                        <img src="{{ asset('storage/' . $sec->image) }}" width="100" style="max-width: 100%; height: auto; border: 1px solid #ddd; padding: 2px; border-radius: 5px;" alt="Image">
+                                        <img src="{{ asset($sec->image) }}" width="100" style="max-width: 100%; height: auto; border: 1px solid #ddd; padding: 2px; border-radius: 5px;" alt="Image">
                                     @else
                                         N/A
                                     @endif
@@ -164,10 +164,10 @@
                             <div class="row mt-3">
                                 <div class="col-md-12">
                                     @if($sec->nid_document)
-                                        <a href="{{ asset('storage/' . $sec->nid_document) }}" target="_blank" class="btn btn-sm btn-outline-info">View NID Doc</a>
+                                        <a href="{{ asset($sec->nid_document) }}" target="_blank" class="btn btn-sm btn-outline-info">View NID Doc</a>
                                     @endif
                                     @if($sec->birth_certificate_document)
-                                        <a href="{{ asset('storage/' . $sec->birth_certificate_document) }}" target="_blank" class="btn btn-sm btn-outline-info">View Birth Cert Doc</a>
+                                        <a href="{{ asset($sec->birth_certificate_document) }}" target="_blank" class="btn btn-sm btn-outline-info">View Birth Cert Doc</a>
                                     @endif
                                 </div>
                             </div>

@@ -107,3 +107,22 @@ if (!function_exists('flatTotalRent')) {
         return $total;
     }
 }
+
+if (!function_exists('uploadFileDirect')) {
+    /**
+     * Upload a file directly to the public directory.
+     *
+     * @param  mixed  $file
+     * @param  string $path
+     * @return string|null
+     */
+    function uploadFileDirect($file, string $path): ?string
+    {
+        if (!$file) {
+            return null;
+        }
+        $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();
+        $file->move(public_path($path), $filename);
+        return $path . '/' . $filename;
+    }
+}

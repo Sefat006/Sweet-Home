@@ -1,0 +1,24 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Prevent directory list browsing
+    Options -Indexes
+
+    # Redirect all traffic to the public directory
+    RewriteCond %{REQUEST_URI} !^/public/
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>
+
+# Block direct browser access to sensitive files
+<FilesMatch "^\.env">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+<FilesMatch "^(composer\.json|composer\.lock|package\.json|package-lock\.json|vite\.config\.js|artisan|phpunit\.xml)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# Block access to directories
+RedirectMatch 404 /\.(git|gitattributes|gitignore|editorconfig)
+RedirectMatch 404 /(app|bootstrap/cache|config|database|resources|routes|storage|tests|vendor)

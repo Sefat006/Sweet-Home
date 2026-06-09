@@ -108,9 +108,7 @@ class UtilityBillController extends Controller
                 'payment_date'          => $request->payment_date,
                 'payment_method'        => $request->payment_method,
                 'transaction_reference' => $request->transaction_reference,
-                'document'              => $request->hasFile('document')
-                    ? $request->file('document')->store('admin/assets/documents/utility-bills', 'public')
-                    : null,
+                'document'              => uploadFileDirect($request->file('document'), 'admin/assets/documents/utility-bills'),
                 'notes'                 => $request->notes,
                 'created_by'            => Auth::id(),
             ]);
@@ -166,7 +164,7 @@ class UtilityBillController extends Controller
             ];
 
             if ($request->hasFile('document')) {
-                $data['document'] = $request->file('document')->store('admin/assets/documents/utility-bills', 'public');
+                $data['document'] = uploadFileDirect($request->file('document'), 'admin/assets/documents/utility-bills');
             }
 
             $bill->update($data);

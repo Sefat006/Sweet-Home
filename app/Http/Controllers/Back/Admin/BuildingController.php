@@ -87,12 +87,12 @@ class BuildingController extends Controller
             DB::beginTransaction();
 
             // Handle Building File Uploads
-            $logo = $request->hasFile('logo') ? $request->file('logo')->store('admin/assets/images/buildings/logos', 'public') : null;
-            $taxDoc = $request->hasFile('holding_tax_document') ? $request->file('holding_tax_document')->store('admin/assets/documents/buildings/tax-docs', 'public') : null;
-            $dolilDoc = $request->hasFile('dolil_document') ? $request->file('dolil_document')->store('admin/assets/documents/buildings/dolil-docs', 'public') : null;
-            $nokshaDoc = $request->hasFile('noksha_document') ? $request->file('noksha_document')->store('admin/assets/documents/buildings/noksha-docs', 'public') : null;
-            $mutationDoc = $request->hasFile('mutation_document') ? $request->file('mutation_document')->store('admin/assets/documents/buildings/mutation-docs', 'public') : null;
-            $khajnaDoc = $request->hasFile('khajna_document') ? $request->file('khajna_document')->store('admin/assets/documents/buildings/khajna-docs', 'public') : null;
+            $logo = uploadFileDirect($request->file('logo'), 'admin/assets/images/buildings/logos');
+            $taxDoc = uploadFileDirect($request->file('holding_tax_document'), 'admin/assets/documents/buildings/tax-docs');
+            $dolilDoc = uploadFileDirect($request->file('dolil_document'), 'admin/assets/documents/buildings/dolil-docs');
+            $nokshaDoc = uploadFileDirect($request->file('noksha_document'), 'admin/assets/documents/buildings/noksha-docs');
+            $mutationDoc = uploadFileDirect($request->file('mutation_document'), 'admin/assets/documents/buildings/mutation-docs');
+            $khajnaDoc = uploadFileDirect($request->file('khajna_document'), 'admin/assets/documents/buildings/khajna-docs');
 
             // 1. Store Building
             $building = Building::create([
@@ -115,9 +115,9 @@ class BuildingController extends Controller
             // Handle Security File Uploads and Store Security Info
             if ($request->has('sec_name') && is_array($request->sec_name)) {
                 foreach ($request->sec_name as $index => $name) {
-                    $secNidDoc = $request->hasFile("sec_nid_document.$index") ? $request->file("sec_nid_document.$index")->store('admin/assets/documents/buildings/security/nid-docs', 'public') : null;
-                    $secBirthDoc = $request->hasFile("sec_birth_cert_document.$index") ? $request->file("sec_birth_cert_document.$index")->store('admin/assets/documents/buildings/security/birth-certificate', 'public') : null;
-                    $secImg = $request->hasFile("sec_image.$index") ? $request->file("sec_image.$index")->store('admin/assets/images/buildings/security', 'public') : null;
+                    $secNidDoc = uploadFileDirect($request->file("sec_nid_document.$index"), 'admin/assets/documents/buildings/security/nid-docs');
+                    $secBirthDoc = uploadFileDirect($request->file("sec_birth_cert_document.$index"), 'admin/assets/documents/buildings/security/birth-certificate');
+                    $secImg = uploadFileDirect($request->file("sec_image.$index"), 'admin/assets/images/buildings/security');
 
                     BuildingSecurity::create([
                         'building_id' => $building->id,
@@ -199,12 +199,12 @@ class BuildingController extends Controller
 
             $data = $request->except(['_token', '_method', 'sec_name', 'sec_father_name', 'sec_mother_name', 'sec_nid_number', 'sec_nid_document', 'sec_birth_cert_number', 'sec_birth_cert_document', 'sec_contact', 'sec_image']);
 
-            if ($request->hasFile('logo')) $data['logo'] = $request->file('logo')->store('admin/assets/images/buildings/logos', 'public');
-            if ($request->hasFile('holding_tax_document')) $data['holding_tax_document'] = $request->file('holding_tax_document')->store('admin/assets/documents/buildings/tax-docs', 'public');
-            if ($request->hasFile('dolil_document')) $data['dolil_document'] = $request->file('dolil_document')->store('admin/assets/documents/buildings/dolil-docs', 'public');
-            if ($request->hasFile('noksha_document')) $data['noksha_document'] = $request->file('noksha_document')->store('admin/assets/documents/buildings/noksha-docs', 'public');
-            if ($request->hasFile('mutation_document')) $data['mutation_document'] = $request->file('mutation_document')->store('admin/assets/documents/buildings/mutation-docs', 'public');
-            if ($request->hasFile('khajna_document')) $data['khajna_document'] = $request->file('khajna_document')->store('admin/assets/documents/buildings/khajna-docs', 'public');
+            if ($request->hasFile('logo')) $data['logo'] = uploadFileDirect($request->file('logo'), 'admin/assets/images/buildings/logos');
+            if ($request->hasFile('holding_tax_document')) $data['holding_tax_document'] = uploadFileDirect($request->file('holding_tax_document'), 'admin/assets/documents/buildings/tax-docs');
+            if ($request->hasFile('dolil_document')) $data['dolil_document'] = uploadFileDirect($request->file('dolil_document'), 'admin/assets/documents/buildings/dolil-docs');
+            if ($request->hasFile('noksha_document')) $data['noksha_document'] = uploadFileDirect($request->file('noksha_document'), 'admin/assets/documents/buildings/noksha-docs');
+            if ($request->hasFile('mutation_document')) $data['mutation_document'] = uploadFileDirect($request->file('mutation_document'), 'admin/assets/documents/buildings/mutation-docs');
+            if ($request->hasFile('khajna_document')) $data['khajna_document'] = uploadFileDirect($request->file('khajna_document'), 'admin/assets/documents/buildings/khajna-docs');
 
             $building->update($data);
 
@@ -213,9 +213,9 @@ class BuildingController extends Controller
 
             if ($request->has('sec_name') && is_array($request->sec_name)) {
                 foreach ($request->sec_name as $index => $name) {
-                    $secNidDoc = $request->hasFile("sec_nid_document.$index") ? $request->file("sec_nid_document.$index")->store('admin/assets/documents/buildings/security/nid-docs', 'public') : ($request->old_sec_nid_document[$index] ?? null);
-                    $secBirthDoc = $request->hasFile("sec_birth_cert_document.$index") ? $request->file("sec_birth_cert_document.$index")->store('admin/assets/documents/buildings/security/birth-certificate', 'public') : ($request->old_sec_birth_cert_document[$index] ?? null);
-                    $secImg = $request->hasFile("sec_image.$index") ? $request->file("sec_image.$index")->store('admin/assets/images/buildings/security', 'public') : ($request->old_sec_image[$index] ?? null);
+                    $secNidDoc = $request->hasFile("sec_nid_document.$index") ? uploadFileDirect($request->file("sec_nid_document.$index"), 'admin/assets/documents/buildings/security/nid-docs') : ($request->old_sec_nid_document[$index] ?? null);
+                    $secBirthDoc = $request->hasFile("sec_birth_cert_document.$index") ? uploadFileDirect($request->file("sec_birth_cert_document.$index"), 'admin/assets/documents/buildings/security/birth-certificate') : ($request->old_sec_birth_cert_document[$index] ?? null);
+                    $secImg = $request->hasFile("sec_image.$index") ? uploadFileDirect($request->file("sec_image.$index"), 'admin/assets/images/buildings/security') : ($request->old_sec_image[$index] ?? null);
 
                     BuildingSecurity::create([
                         'building_id' => $building->id,

@@ -18,9 +18,14 @@ class FlatTenant extends Model
     ];
  
     protected $casts = [
-        'start_date'     => 'date',
-        'end_date'       => 'date',
-        'advance_amount' => 'decimal:2',
+        'start_date'           => 'date',
+        'end_date'             => 'date',
+        'advance_amount'       => 'decimal:2',
+        'advance_document'     => 'array',
+        'agreement_document'   => 'array',
+        'police_form_document' => 'array',
+        'notice_document'      => 'array',
+        'house_rent_copy'      => 'array',
     ];
  
     public function flat()

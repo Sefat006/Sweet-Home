@@ -53,7 +53,7 @@
                                 <td>{{ $key + 1 }}</td>
                                 <td>
                                     @if($building->logo)
-                                        <img src="{{ asset('storage/' . $building->logo) }}" width="50" height="50" class="object-fit-cover" alt="">
+                                        <img src="{{ asset($building->logo) }}" width="50" height="50" class="object-fit-cover" alt="">
                                     @else
                                         <span class="text-muted">N/A</span>
                                     @endif

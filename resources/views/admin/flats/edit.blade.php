@@ -107,7 +107,7 @@
                             @error('image')<div class="invalid-feedback">{{ $message }}</div>@enderror
                             @if($flat->image)
                             <div class="mt-2">
-                                <img src="{{ asset('storage/' . $flat->image) }}" alt="Flat Image" width="80" class="img-thumbnail">
+                                <img src="{{ asset($flat->image) }}" alt="Flat Image" width="80" class="img-thumbnail">
                             </div>
                             @endif
                         </div>

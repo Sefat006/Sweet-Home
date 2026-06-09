@@ -120,7 +120,7 @@
             <div class="bg-style">
                 <h5 class="card-title"><i class="fa-solid fa-image me-2 text-info"></i> Flat Image</h5>
                 @if($flat->image)
-                    <img src="{{ asset('storage/' . $flat->image) }}" class="img-fluid rounded border" alt="{{ $flat->flat_name }}">
+                    <img src="{{ asset($flat->image) }}" class="img-fluid rounded border" alt="{{ $flat->flat_name }}">
                 @else
                     <div class="text-center p-5 border rounded bg-light text-muted">
                         <i class="fa-solid fa-house-chimney-window fa-3x mb-3"></i>

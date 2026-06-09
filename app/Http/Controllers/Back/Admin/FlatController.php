@@ -67,9 +67,7 @@ class FlatController extends Controller
         try {
             DB::beginTransaction();
 
-            $image = $request->hasFile('image')
-                ? $request->file('image')->store('admin/assets/images/flats', 'public')
-                : null;
+            $image = uploadFileDirect($request->file('image'), 'admin/assets/images/flats');
 
             Flat::create([
                 'building_id'        => $building->id,
@@ -148,7 +146,7 @@ class FlatController extends Controller
             $data = $request->except(['_token', '_method']);
 
             if ($request->hasFile('image')) {
-                $data['image'] = $request->file('image')->store('admin/assets/images/flats', 'public');
+                $data['image'] = uploadFileDirect($request->file('image'), 'admin/assets/images/flats');
             } else {
                 unset($data['image']);
             }

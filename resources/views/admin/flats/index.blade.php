@@ -80,7 +80,7 @@
                                 <td>
                                     <strong>{{ $flat->flat_name }}</strong>
                                     @if($flat->image)
-                                        <br><img src="{{ asset('storage/'.$flat->image) }}" width="40" height="40" class="object-fit-cover rounded mt-1">
+                                        <br><img src="{{ asset($flat->image) }}" width="40" height="40" class="object-fit-cover rounded mt-1">
                                     @endif
                                 </td>
                                 <td>{{ $flat->floor ?? '—' }}</td>

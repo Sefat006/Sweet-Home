@@ -55,7 +55,7 @@
                         <div class="row align-items-center">
                             <div class="col-md-2 text-center">
                                 @if($activeTenant->tenant->image)
-                                    <img src="{{ asset('storage/'.$activeTenant->tenant->image) }}" class="img-fluid rounded-circle" alt="Tenant Image" style="width: 120px; height: 120px; object-fit: cover;">
+                                    <img src="{{ asset($activeTenant->tenant->image) }}" class="img-fluid rounded-circle" alt="Tenant Image" style="width: 120px; height: 120px; object-fit: cover;">
                                 @else
                                     <img src="{{ asset('admin/assets/images/default-avatar.png') }}" class="img-fluid rounded-circle" alt="Default Avatar" style="width: 120px; height: 120px; object-fit: cover;">
                                 @endif
