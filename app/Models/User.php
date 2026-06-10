@@ -26,6 +26,7 @@ class User extends Authenticatable
         'education',
         'occupation_position', 'occupation_company',
         'occupation_address', 'occupation_document',
+        'occupation_info',
 
         // ID Documents
         'nid_number', 'nid_document',
@@ -72,6 +73,7 @@ class User extends Authenticatable
         'mother_expired_date'    => 'date',
         'emergency_contact'      => 'array',
         'education'              => 'array',
+        'occupation_info'        => 'array',
         'father_education'       => 'array',
         'mother_education'       => 'array',
         'spouse_info'            => 'array',

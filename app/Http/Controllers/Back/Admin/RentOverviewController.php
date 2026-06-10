@@ -21,99 +21,111 @@ class RentOverviewController extends Controller
         $user = Auth::user();
 
         // ── 1. Fetch buildings that belong to this admin ──────────────────
-        $buildingQuery = Building::query();
+        $buildingQuery = Building::with([
+            'flats.activeTenant.tenant',
+            'flats.monthlyBills' => function ($q) {
+                $q->orderByDesc('bill_year')->orderByDesc('bill_month_number');
+            }
+        ]);
         if ($user->role !== 'super_admin') {
             $buildingQuery->where('user_id', $user->id);
         }
 
-        // Address suggestions for the filter datalist
-        $addressSuggestions = (clone $buildingQuery)->pluck('address')->unique()->filter()->values();
+        // Address suggestions for the filter datalist (using a clone of query without eager loads)
+        $suggestQuery = Building::query();
+        if ($user->role !== 'super_admin') {
+            $suggestQuery->where('user_id', $user->id);
+        }
+        $addressSuggestions = $suggestQuery->pluck('address')->unique()->filter()->values();
 
-        // ── 2. Load flats with all needed relations in one go ─────────────
-        $flatsQuery = Flat::with([
-            'building',
-            'activeTenant.tenant',
-            'monthlyBills' => function ($q) {
-                $q->orderByDesc('bill_year')->orderByDesc('bill_month_number');
-            },
-        ])->whereHas('building', function ($q) use ($user) {
-            if ($user->role !== 'super_admin') {
-                $q->where('user_id', $user->id);
-            }
-        });
-
-        // ── 3. Apply filters ──────────────────────────────────────────────
+        // ── 2. Apply filters ──────────────────────────────────────────────
 
         // Filter by address (building address)
         if ($request->filled('address')) {
-            $flatsQuery->whereHas('building', function ($q) use ($request) {
-                $q->where('address', 'like', '%' . $request->address . '%');
-            });
+            $buildingQuery->where('address', 'like', '%' . $request->address . '%');
         }
 
-        // Filter by occupancy: occupied | vacant
-        if ($request->filled('occupancy') && in_array($request->occupancy, ['occupied', 'vacant'])) {
-            $flatsQuery->where('status', $request->occupancy);
-        }
-
-        // Filter by payment status: paid | pending (due + partial)
-        // We resolve this after fetching (it's computed) but we can pre-filter via sub-query
         $paymentFilter = $request->payment_status; // 'paid' | 'pending' | null
 
-        $flats = $flatsQuery->get();
+        $buildings = $buildingQuery->get();
 
-        // ── 4. Build overview rows ────────────────────────────────────────
-        $rows = $flats->map(function (Flat $flat) {
-            $bills      = $flat->monthlyBills; // already sorted desc
-            $latestBill = $bills->first();
+        // ── 3. Build overview rows grouped by Building ────────────────────
+        $rows = $buildings->map(function (Building $building) use ($request) {
+            $flats = $building->flats;
 
-            // Count unpaid bills (due or partial)
-            $unpaidBills = $bills->filter(fn($b) => $b->collection_status !== 'paid');
-            $overdueCount   = $unpaidBills->count();
-            $totalOutstanding = $unpaidBills->sum('remaining_amount');
-
-            // Determine display status
-            if (!$latestBill) {
-                $displayStatus = 'no_bill';
-            } else {
-                $displayStatus = $latestBill->collection_status; // paid | partial | due
+            // Filter by occupancy within building
+            if ($request->filled('occupancy') && in_array($request->occupancy, ['occupied', 'vacant'])) {
+                $flats = $flats->filter(fn($f) => $f->status === $request->occupancy);
             }
 
-            // Sort weight: due=0, partial=1, no_bill=2, paid=3
-            $sortWeight = match ($displayStatus) {
-                'due'     => 0,
-                'partial' => 1,
-                'no_bill' => 2,
-                'paid'    => 3,
-                default   => 4,
-            };
+            // Map each flat to its detailed overview
+            $flatRows = $flats->map(function (Flat $flat) {
+                $bills      = $flat->monthlyBills; // already sorted desc
+                $latestBill = $bills->first();
 
-            $activeTenant = $flat->activeTenant;
-            $tenantName   = $activeTenant?->tenant?->name ?? null;
-            $tenantPhone  = $activeTenant?->tenant?->phone ?? null;
+                // Count unpaid bills (due or partial)
+                $unpaidBills = $bills->filter(fn($b) => $b->collection_status !== 'paid');
+                $overdueCount   = $unpaidBills->count();
+                $totalOutstanding = $unpaidBills->sum('remaining_amount');
+
+                // Determine display status
+                if (!$latestBill) {
+                    $displayStatus = 'no_bill';
+                } else {
+                    $displayStatus = $latestBill->collection_status;
+                }
+
+                $activeTenant = $flat->activeTenant;
+                $tenantName   = $activeTenant?->tenant?->name ?? null;
+                $tenantPhone  = $activeTenant?->tenant?->phone ?? null;
+
+                return [
+                    'flat'             => $flat,
+                    'tenant_name'      => $tenantName,
+                    'tenant_phone'     => $tenantPhone,
+                    'total_rent'       => $flat->total_rent,
+                    'latest_bill'      => $latestBill,
+                    'display_status'   => $displayStatus,
+                    'overdue_count'    => $overdueCount,
+                    'total_outstanding'=> (float) $totalOutstanding,
+                ];
+            })->values();
+
+            // Determine building level rent status:
+            // "if all the rents of flats of that building is paid, then it will show paid, else it will show due"
+            // A building is 'due' if any of its flats is 'due' or 'partial'.
+            $hasDue = $flatRows->contains(fn($fr) => in_array($fr['display_status'], ['due', 'partial']));
+            $buildingStatus = $hasDue ? 'due' : 'paid';
 
             return [
-                'flat'             => $flat,
-                'building'         => $flat->building,
-                'tenant_name'      => $tenantName,
-                'tenant_phone'     => $tenantPhone,
-                'total_rent'       => $flat->total_rent,
-                'latest_bill'      => $latestBill,
-                'display_status'   => $displayStatus,
-                'overdue_count'    => $overdueCount,
-                'total_outstanding'=> (float) $totalOutstanding,
-                'sort_weight'      => $sortWeight,
+                'building'          => $building,
+                'flats'             => $flatRows,
+                'status'            => $buildingStatus,
+                'total_outstanding' => (float) $flatRows->sum('total_outstanding'),
+                'total_rent'        => (float) $flatRows->sum('total_rent'),
+                'occupied_count'    => $flatRows->filter(fn($fr) => $fr['flat']->status === 'occupied')->count(),
+                'vacant_count'      => $flatRows->filter(fn($fr) => $fr['flat']->status === 'vacant')->count(),
             ];
         });
 
-        // ── 5. Apply payment status filter (post-fetch) ───────────────────
-        if ($paymentFilter === 'paid') {
-            $rows = $rows->filter(fn($r) => $r['display_status'] === 'paid');
-        } elseif ($paymentFilter === 'pending') {
-            $rows = $rows->filter(fn($r) => in_array($r['display_status'], ['due', 'partial', 'no_bill']));
+        // ── 4. Apply Occupancy filter pruning ─────────────────────────────
+        // If occupancy filter was set, we prune out buildings that have no matching flats
+        if ($request->filled('occupancy')) {
+            $rows = $rows->filter(fn($r) => $r['flats']->isNotEmpty());
         }
 
-        // ── 6. Sort: pending first, paid last ─────────────────────────────
+        // ── 5. Apply payment status filter (post-fetch) ───────────────────
+        if ($paymentFilter === 'paid') {
+            $rows = $rows->filter(fn($r) => $r['status'] === 'paid');
+        } elseif ($paymentFilter === 'pending') {
+            $rows = $rows->filter(fn($r) => $r['status'] === 'due');
+        }
+
+        // ── 6. Sort: due status first, paid last ──────────────────────────
+        $rows = $rows->map(function ($r) {
+            $r['sort_weight'] = ($r['status'] === 'due') ? 0 : 1;
+            return $r;
+        });
         $rows = $rows->sortBy('sort_weight')->values();
 
         return view('admin.rent_overview.index', compact(

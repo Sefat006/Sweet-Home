@@ -40,7 +40,7 @@
                 <p class="text-muted">{{ $tenant->tenant_id }}</p>
                 
                 <ul class="list-group list-group-flush text-start mt-4 bg-transparent">
-                    <li class="list-group-item bg-transparent border-secondary" style="color: black !important;"><i class="fa-solid fa-phone" style="color: black !important;"></i> {{ $tenant->phone }}</li>
+                    <li class="list-group-item bg-transparent border-secondary" style="color: black !important;"><i class="fa-solid fa-phone" style="color: black !important;"></i> <a href="tel:{{ $tenant->phone }}" style="color: inherit; text-decoration: none;">{{ $tenant->phone }}</a></li>
                     <li class="list-group-item bg-transparent border-secondary" style="color: black !important;"><i class="fa-solid fa-envelope" style="color: black !important;"></i> {{ $tenant->email ?? 'N/A' }}</li>
                     <li class="list-group-item bg-transparent border-secondary" style="color: black !important;"><i class="fa-solid fa-id-card" style="color: black !important;"></i> NID: {{ $tenant->nid_number ?? 'N/A' }}</li>
                     <li class="list-group-item bg-transparent border-secondary" style="color: black !important;"><i class="fa-solid fa-droplet text-danger" style="color: black !important;"></i> Blood: {{ $tenant->blood_group ?? 'N/A' }}</li>
@@ -78,7 +78,7 @@
                     <div class="row mb-4">
                         <div class="col-sm-4 mb-3"><p class="mb-1 text-muted">Contact Name</p><strong>{{ $tenant->emergency_contact_name ?? 'N/A' }}</strong></div>
                         <div class="col-sm-4 mb-3"><p class="mb-1 text-muted">Relation</p><strong>{{ $tenant->emergency_contact_relation ?? 'N/A' }}</strong></div>
-                        <div class="col-sm-4 mb-3"><p class="mb-1 text-muted">Phone Number</p><strong>{{ $tenant->emergency_contact_phone ?? 'N/A' }}</strong></div>
+                        <div class="col-sm-4 mb-3"><p class="mb-1 text-muted">Phone Number</p><strong>@if($tenant->emergency_contact_phone)<a href="tel:{{ $tenant->emergency_contact_phone }}" style="color: inherit; text-decoration: none;">{{ $tenant->emergency_contact_phone }}</a>@else N/A @endif</strong></div>
                         <div class="col-sm-12 mb-3"><p class="mb-1 text-muted">Address</p><strong>{{ $tenant->emergency_contact_address ?? 'N/A' }}</strong></div>
                     </div>
 
@@ -86,7 +86,7 @@
                     <h6 class="text-primary mb-3">Spouse Information</h6>
                     <div class="row mb-4">
                         <div class="col-sm-4 mb-3"><p class="mb-1 text-muted">Spouse Name</p><strong>{{ $tenant->spouse_name ?? 'N/A' }}</strong></div>
-                        <div class="col-sm-4 mb-3"><p class="mb-1 text-muted">Spouse Contact No</p><strong>{{ $tenant->spouse_contact_number ?? 'N/A' }}</strong></div>
+                        <div class="col-sm-4 mb-3"><p class="mb-1 text-muted">Spouse Contact No</p><strong>@if($tenant->spouse_contact_number)<a href="tel:{{ $tenant->spouse_contact_number }}" style="color: inherit; text-decoration: none;">{{ $tenant->spouse_contact_number }}</a>@else N/A @endif</strong></div>
                         <div class="col-sm-4 mb-3"><p class="mb-1 text-muted">Spouse Father's Name</p><strong>{{ $tenant->spouse_father_name ?? 'N/A' }}</strong></div>
                         <div class="col-sm-4 mb-3"><p class="mb-1 text-muted">Spouse Mother's Name</p><strong>{{ $tenant->spouse_mother_name ?? 'N/A' }}</strong></div>
                         <div class="col-sm-4 mb-3"><p class="mb-1 text-muted">Spouse Blood Group</p><strong>{{ $tenant->spouse_blood_group ?? 'N/A' }}</strong></div>
@@ -102,7 +102,7 @@
                     <h6 class="text-primary mb-3">Previous Tenancy Details</h6>
                     <div class="row mb-4">
                         <div class="col-sm-4 mb-3"><p class="mb-1 text-muted">Previous Owner</p><strong>{{ $tenant->prev_owner_name ?? 'N/A' }}</strong></div>
-                        <div class="col-sm-4 mb-3"><p class="mb-1 text-muted">Owner Phone</p><strong>{{ $tenant->prev_owner_phone ?? 'N/A' }}</strong></div>
+                        <div class="col-sm-4 mb-3"><p class="mb-1 text-muted">Owner Phone</p><strong>@if($tenant->prev_owner_phone)<a href="tel:{{ $tenant->prev_owner_phone }}" style="color: inherit; text-decoration: none;">{{ $tenant->prev_owner_phone }}</a>@else N/A @endif</strong></div>
                         <div class="col-sm-4 mb-3"><p class="mb-1 text-muted">Reason of Leaving</p><strong>{{ $tenant->prev_leaving_reason ?? 'N/A' }}</strong></div>
                         <div class="col-sm-12 mb-3"><p class="mb-1 text-muted">Previous Address</p><strong>{{ $tenant->prev_flat_address ?? 'N/A' }}</strong></div>
                     </div>
@@ -213,7 +213,7 @@
                                     <td>{{ $mem['name'] ?? 'N/A' }}</td>
                                     <td>{{ $mem['age'] ?? 'N/A' }}</td>
                                     <td>{{ $mem['relation'] ?? 'N/A' }}</td>
-                                    <td>{{ $mem['phone'] ?? 'N/A' }}</td>
+                                    <td>@if(!empty($mem['phone']))<a href="tel:{{ $mem['phone'] }}" style="color: inherit; text-decoration: none;">{{ $mem['phone'] }}</a>@else N/A @endif</td>
                                 </tr>
                                 @endforeach
                             </tbody>
@@ -313,7 +313,7 @@
                                 <tr>
                                     <td>{{ $help['name'] ?? 'N/A' }}</td>
                                     <td>{{ $help['nid'] ?? 'N/A' }}</td>
-                                    <td>{{ $help['mobile'] ?? 'N/A' }}</td>
+                                    <td>@if(!empty($help['mobile']))<a href="tel:{{ $help['mobile'] }}" style="color: inherit; text-decoration: none;">{{ $help['mobile'] }}</a>@else N/A @endif</td>
                                     <td>{{ $help['address'] ?? 'N/A' }}</td>
                                 </tr>
                                 @endforeach
@@ -334,7 +334,7 @@
                                 <tr>
                                     <td>{{ $driver['name'] ?? 'N/A' }}</td>
                                     <td>{{ $driver['nid'] ?? 'N/A' }}</td>
-                                    <td>{{ $driver['mobile'] ?? 'N/A' }}</td>
+                                    <td>@if(!empty($driver['mobile']))<a href="tel:{{ $driver['mobile'] }}" style="color: inherit; text-decoration: none;">{{ $driver['mobile'] }}</a>@else N/A @endif</td>
                                     <td>{{ $driver['address'] ?? 'N/A' }}</td>
                                 </tr>
                                 @endforeach

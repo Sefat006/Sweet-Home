@@ -22,6 +22,9 @@
                     </div>
                 </div>
                 <div class="breadcrumb__content__right d-flex gap-2">
+                    <a href="{{ route('admin.rent.overview')}}" class="btn btn-secondary">
+                        Rent Overview
+                    </a>
                     <a href="{{ route('admin.flats.index', $building->id) }}" class="btn btn-secondary">
                         <i class="fa-solid fa-arrow-left"></i> Back to Flats
                     </a>

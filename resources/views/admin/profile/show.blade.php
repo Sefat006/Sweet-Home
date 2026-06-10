@@ -489,7 +489,24 @@ body { font-family: 'DM Sans', sans-serif; color: var(--ink); }
                             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/></svg>
                             {{ $user->phone }}
                         </span>
-                        @if($user->occupation_position)
+                        @php
+                            $occupations = is_array($user->occupation_info) ? $user->occupation_info : (json_decode($user->occupation_info, true) ?? []);
+                            $primaryOcc = null;
+                            if (count($occupations) > 0) {
+                                $firstOcc = $occupations[0];
+                                if (($firstOcc['type'] ?? 'job') === 'job') {
+                                    $primaryOcc = (!empty($firstOcc['company']) ? $firstOcc['company'] : null);
+                                } else {
+                                    $primaryOcc = (!empty($firstOcc['business_name']) ? $firstOcc['business_name'] : null);
+                                }
+                            }
+                        @endphp
+                        @if($primaryOcc)
+                        <span>
+                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
+                            {{ $primaryOcc }}
+                        </span>
+                        @elseif($user->occupation_position)
                         <span>
                             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 00.75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 00-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0112 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 01-.673-.38m0 0A2.18 2.18 0 013 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 013.413-.387m7.5 0V5.25A2.25 2.25 0 0013.5 3h-3a2.25 2.25 0 00-2.25 2.25v.894m7.5 0a48.667 48.667 0 00-7.5 0"/></svg>
                             {{ $user->occupation_position }}@if($user->occupation_company), {{ $user->occupation_company }}@endif
@@ -675,53 +692,162 @@ body { font-family: 'DM Sans', sans-serif; color: var(--ink); }
                     <h5 class="sp-card__title">Occupation</h5>
                 </div>
                 <div class="sp-card__body">
-                    <div class="sp-grid">
-                        <div class="sp-field">
-                            <div class="sp-field__label">Position / Designation</div>
-                            <div class="sp-field__value">
-                                @if($user->occupation_position)
-                                    {{ $user->occupation_position }}
-                                @else
-                                    <span class="sp-field__value--empty">Not provided</span>
-                                @endif
+                    @php
+                        $occupations = is_array($user->occupation_info) ? $user->occupation_info : (json_decode($user->occupation_info, true) ?? []);
+                    @endphp
+
+                    @if(count($occupations) > 0)
+                        @foreach($occupations as $index => $occ)
+                            <div class="sp-person" style="margin-top: {{ $index > 0 ? '16px' : '0' }}">
+                                <div class="sp-person__head">Occupation {{ $index + 1 }} ({{ ucfirst($occ['type'] ?? 'Job') }})</div>
+                                <div class="sp-grid">
+                                    @if(($occ['type'] ?? 'job') === 'job')
+                                        <div class="sp-field">
+                                            <div class="sp-field__label">Company Name</div>
+                                            <div class="sp-field__value">{{ spVal($occ['company'] ?? null) }}</div>
+                                        </div>
+                                        <div class="sp-field">
+                                            <div class="sp-field__label">Address</div>
+                                            <div class="sp-field__value">{{ spVal($occ['address'] ?? null) }}</div>
+                                        </div>
+                                        <div class="sp-field">
+                                            <div class="sp-field__label">Verification Documents</div>
+                                            <div class="sp-field__value">
+                                                @if(!empty($occ['documents']))
+                                                    @foreach($occ['documents'] as $docIndex => $doc)
+                                                        @if($doc)
+                                                            <a href="{{ asset($doc) }}" target="_blank" class="sp-doc mb-1 d-inline-flex">
+                                                                 <span class="sp-doc__icon">
+                                                                    <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32"/></svg>
+                                                                </span>
+                                                                <span class="sp-doc__name">Doc {{ $docIndex + 1 }}</span>
+                                                            </a>
+                                                        @endif
+                                                    @endforeach
+                                                @else
+                                                    <span class="sp-doc--none">No document uploaded</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @else
+                                        <div class="sp-field">
+                                            <div class="sp-field__label">Business Name</div>
+                                            <div class="sp-field__value">{{ spVal($occ['business_name'] ?? null) }}</div>
+                                        </div>
+                                        <div class="sp-field">
+                                            <div class="sp-field__label">Business Address</div>
+                                            <div class="sp-field__value">{{ spVal($occ['business_address'] ?? null) }}</div>
+                                        </div>
+                                        <div class="sp-field">
+                                            <div class="sp-field__label">Trade License Document</div>
+                                            <div class="sp-field__value">
+                                                @if(!empty($occ['trade_docs']))
+                                                    @foreach($occ['trade_docs'] as $docIndex => $doc)
+                                                        @if($doc)
+                                                            <a href="{{ asset($doc) }}" target="_blank" class="sp-doc mb-1 d-inline-flex">
+                                                                <span class="sp-doc__icon">
+                                                                    <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32"/></svg>
+                                                                </span>
+                                                                <span class="sp-doc__name">Doc {{ $docIndex + 1 }}</span>
+                                                            </a>
+                                                        @endif
+                                                    @endforeach
+                                                @else
+                                                    <span class="sp-doc--none">No document uploaded</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div class="sp-field">
+                                            <div class="sp-field__label">TIN Certificate</div>
+                                            <div class="sp-field__value">
+                                                @if(!empty($occ['tin_docs']))
+                                                    @foreach($occ['tin_docs'] as $docIndex => $doc)
+                                                        @if($doc)
+                                                            <a href="{{ asset($doc) }}" target="_blank" class="sp-doc mb-1 d-inline-flex">
+                                                                <span class="sp-doc__icon">
+                                                                    <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32"/></svg>
+                                                                </span>
+                                                                <span class="sp-doc__name">Doc {{ $docIndex + 1 }}</span>
+                                                            </a>
+                                                        @endif
+                                                    @endforeach
+                                                @else
+                                                    <span class="sp-doc--none">No document uploaded</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                        <div class="sp-field">
+                                            <div class="sp-field__label">Other Documents</div>
+                                            <div class="sp-field__value">
+                                                @if(!empty($occ['other_docs']))
+                                                    @foreach($occ['other_docs'] as $docIndex => $doc)
+                                                        @if($doc)
+                                                            <a href="{{ asset($doc) }}" target="_blank" class="sp-doc mb-1 d-inline-flex">
+                                                                <span class="sp-doc__icon">
+                                                                    <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32"/></svg>
+                                                                </span>
+                                                                <span class="sp-doc__name">Doc {{ $docIndex + 1 }}</span>
+                                                            </a>
+                                                        @endif
+                                                    @endforeach
+                                                @else
+                                                    <span class="sp-doc--none">No document uploaded</span>
+                                                @endif
+                                            </div>
+                                        </div>
+                                    @endif
+                                </div>
+                            </div>
+                        @endforeach
+                    @else
+                        <div class="sp-grid">
+                            <div class="sp-field">
+                                <div class="sp-field__label">Designation / Position</div>
+                                <div class="sp-field__value">
+                                    @if($user->occupation_position)
+                                        {{ $user->occupation_position }}
+                                    @else
+                                        <span class="sp-field__value--empty">Not provided</span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="sp-field">
+                                <div class="sp-field__label">Company / Organisation</div>
+                                <div class="sp-field__value">
+                                    @if($user->occupation_company)
+                                        {{ $user->occupation_company }}
+                                    @else
+                                        <span class="sp-field__value--empty">Not provided</span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="sp-field">
+                                <div class="sp-field__label">Company Address</div>
+                                <div class="sp-field__value">
+                                    @if($user->occupation_address)
+                                        {{ $user->occupation_address }}
+                                    @else
+                                        <span class="sp-field__value--empty">Not provided</span>
+                                    @endif
+                                </div>
+                            </div>
+                            <div class="sp-field">
+                                <div class="sp-field__label">Occupation Document</div>
+                                <div class="sp-field__value">
+                                    @if($user->occupation_document)
+                                        <a href="{{ asset($user->occupation_document) }}" target="_blank" class="sp-doc">
+                                            <span class="sp-doc__icon">
+                                                <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32"/></svg>
+                                            </span>
+                                            <span class="sp-doc__name">{{ basename($user->occupation_document) }}</span>
+                                        </a>
+                                    @else
+                                        <span class="sp-doc--none">No document uploaded</span>
+                                    @endif
+                                </div>
                             </div>
                         </div>
-                        <div class="sp-field">
-                            <div class="sp-field__label">Company / Organisation</div>
-                            <div class="sp-field__value">
-                                @if($user->occupation_company)
-                                    {{ $user->occupation_company }}
-                                @else
-                                    <span class="sp-field__value--empty">Not provided</span>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="sp-field">
-                            <div class="sp-field__label">Company Address</div>
-                            <div class="sp-field__value">
-                                @if($user->occupation_address)
-                                    {{ $user->occupation_address }}
-                                @else
-                                    <span class="sp-field__value--empty">Not provided</span>
-                                @endif
-                            </div>
-                        </div>
-                        <div class="sp-field">
-                            <div class="sp-field__label">Occupation Document</div>
-                            <div class="sp-field__value">
-                                @if($user->occupation_document)
-                                    <a href="{{ asset($user->occupation_document) }}" target="_blank" class="sp-doc">
-                                        <span class="sp-doc__icon">
-                                            <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32"/></svg>
-                                        </span>
-                                        <span class="sp-doc__name">{{ basename($user->occupation_document) }}</span>
-                                    </a>
-                                @else
-                                    <span class="sp-doc--none">No document uploaded</span>
-                                @endif
-                            </div>
-                        </div>
-                    </div>
+                    @endif
                 </div>
             </div>
 
@@ -829,8 +955,8 @@ body { font-family: 'DM Sans', sans-serif; color: var(--ink); }
                                     <th>#</th>
                                     <th>Degree / Exam</th>
                                     <th>Institute / University</th>
-                                    <th>Passing Date</th>
                                     <th>Year</th>
+                                    <th>Documents</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -843,15 +969,27 @@ body { font-family: 'DM Sans', sans-serif; color: var(--ink); }
                                     </td>
                                     <td>{{ $edu['institute'] ?? '—' }}</td>
                                     <td>
-                                        @if(!empty($edu['date']))
-                                            {{ \Carbon\Carbon::parse($edu['date'])->format('d M Y') }}
+                                        @if(!empty($edu['year']))
+                                            <span class="sp-pill sp-pill--blue">{{ $edu['year'] }}</span>
                                         @else —
                                         @endif
                                     </td>
                                     <td>
-                                        @if(!empty($edu['year']))
-                                            <span class="sp-pill sp-pill--blue">{{ $edu['year'] }}</span>
-                                        @else —
+                                        @if(!empty($edu['documents']) && is_array($edu['documents']))
+                                            <div class="d-flex flex-wrap gap-1">
+                                                @foreach($edu['documents'] as $docIndex => $doc)
+                                                    @if($doc)
+                                                        <a href="{{ asset($doc) }}" target="_blank" class="sp-doc mb-1 d-inline-flex">
+                                                            <span class="sp-doc__icon">
+                                                                <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32"/></svg>
+                                                            </span>
+                                                            <span class="sp-doc__name">Doc {{ $docIndex + 1 }}</span>
+                                                        </a>
+                                                    @endif
+                                                @endforeach
+                                            </div>
+                                        @else
+                                            <span class="sp-doc--none">No docs</span>
                                         @endif
                                     </td>
                                 </tr>
@@ -862,22 +1000,20 @@ body { font-family: 'DM Sans', sans-serif; color: var(--ink); }
                     </div>
                     @endif
 
-                    <div class="sp-divider">Education Document</div>
+                    @if($user->education_document)
+                    <div class="sp-divider">Legacy Education Document</div>
                     <div class="sp-field">
                         <div class="sp-field__label">Certificate / Transcript</div>
                         <div class="sp-field__value">
-                            @if($user->education_document)
-                                <a href="{{ asset($user->education_document) }}" target="_blank" class="sp-doc">
-                                    <span class="sp-doc__icon">
-                                        <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32"/></svg>
-                                    </span>
-                                    <span class="sp-doc__name">{{ basename($user->education_document) }}</span>
-                                </a>
-                            @else
-                                <span class="sp-doc--none">No document uploaded</span>
-                            @endif
+                            <a href="{{ asset($user->education_document) }}" target="_blank" class="sp-doc">
+                                <span class="sp-doc__icon">
+                                    <svg fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32"/></svg>
+                                </span>
+                                <span class="sp-doc__name">{{ basename($user->education_document) }}</span>
+                            </a>
                         </div>
                     </div>
+                    @endif
                 </div>
             </div>
         </div>{{-- /#tab-education --}}

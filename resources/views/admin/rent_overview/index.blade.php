@@ -40,43 +40,52 @@
 
     {{-- ── Summary Cards ────────────────────────────────────────────────── --}}
     @php
-        $totalFlats    = $rows->count();
-        $paidCount     = $rows->filter(fn($r) => $r['display_status'] === 'paid')->count();
-        $dueCount      = $rows->filter(fn($r) => $r['display_status'] === 'due')->count();
-        $partialCount  = $rows->filter(fn($r) => $r['display_status'] === 'partial')->count();
-        $noBillCount   = $rows->filter(fn($r) => $r['display_status'] === 'no_bill')->count();
-        $totalOutstandingAll = $rows->sum('total_outstanding');
+        $totalBuildingsCount = $rows->count();
+        $dueBuildingsCount   = $rows->filter(fn($r) => $r['status'] === 'due')->count();
+        $paidBuildingsCount  = $rows->filter(fn($r) => $r['status'] === 'paid')->count();
+
+        $totalFlatsAll       = 0;
+        $occupiedFlatsAll    = 0;
+        $vacantFlatsAll      = 0;
+        $totalOutstandingAll = 0;
+
+        foreach ($rows as $r) {
+            $totalFlatsAll       += $r['flats']->count();
+            $occupiedFlatsAll    += $r['occupied_count'];
+            $vacantFlatsAll      += $r['vacant_count'];
+            $totalOutstandingAll += $r['total_outstanding'];
+        }
     @endphp
 
     <div class="row mb-3 mt-3">
         <div class="col-6 col-md-2 mb-2">
             <div class="card text-center p-3 bg-style">
-                <h4 class="mb-0">{{ $totalFlats }}</h4>
+                <h4 class="mb-0">{{ $totalBuildingsCount }}</h4>
+                <small class="text-muted">Total Buildings</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-2 mb-2">
+            <div class="card text-center p-3 bg-style">
+                <h4 class="mb-0 text-danger">{{ $dueBuildingsCount }}</h4>
+                <small class="text-muted">Due Buildings</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-2 mb-2">
+            <div class="card text-center p-3 bg-style">
+                <h4 class="mb-0 text-success">{{ $paidBuildingsCount }}</h4>
+                <small class="text-muted">Paid Buildings</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-2 mb-2">
+            <div class="card text-center p-3 bg-style">
+                <h4 class="mb-0 text-info">{{ $totalFlatsAll }}</h4>
                 <small class="text-muted">Total Flats</small>
             </div>
         </div>
         <div class="col-6 col-md-2 mb-2">
             <div class="card text-center p-3 bg-style">
-                <h4 class="mb-0 text-danger">{{ $dueCount }}</h4>
-                <small class="text-muted">Due</small>
-            </div>
-        </div>
-        <div class="col-6 col-md-2 mb-2">
-            <div class="card text-center p-3 bg-style">
-                <h4 class="mb-0 text-warning">{{ $partialCount }}</h4>
-                <small class="text-muted">Partial</small>
-            </div>
-        </div>
-        <div class="col-6 col-md-2 mb-2">
-            <div class="card text-center p-3 bg-style">
-                <h4 class="mb-0 text-success">{{ $paidCount }}</h4>
-                <small class="text-muted">Paid</small>
-            </div>
-        </div>
-        <div class="col-6 col-md-2 mb-2">
-            <div class="card text-center p-3 bg-style">
-                <h4 class="mb-0 text-secondary">{{ $noBillCount }}</h4>
-                <small class="text-muted">No Bill Yet</small>
+                <h4 class="mb-0 text-warning">{{ $occupiedFlatsAll }} / {{ $vacantFlatsAll }}</h4>
+                <small class="text-muted">Occupied / Vacant</small>
             </div>
         </div>
         <div class="col-6 col-md-2 mb-2">
@@ -169,31 +178,29 @@
                         <thead>
                             <tr>
                                 <th width="45">SL</th>
-                                <th>Building</th>
-                                <th>Flat</th>
-                                <th>Tenant</th>
-                                <th>Total Rent</th>
-                                <th>Bill Status</th>
-                                <th>Outstanding</th>
-                                <th width="120">Actions</th>
+                                <th>Building Name & Address</th>
+                                <th>Flats Info</th>
+                                <th>Total Monthly Rent</th>
+                                <th>Outstanding Amount</th>
+                                <th>Status</th>
+                                <th width="150" class="text-center">Action</th>
                             </tr>
                         </thead>
                         <tbody>
                             @forelse($rows as $key => $row)
                                 @php
-                                    $status  = $row['display_status'];
-                                    $rowClass = match($status) {
-                                        'due'     => 'table-row-due',
-                                        'partial' => 'table-row-partial',
-                                        'paid'    => 'table-row-paid',
+                                    $bStatus  = $row['status'];
+                                    $rowClass = match($bStatus) {
+                                        'due'     => 'table-row-due-building',
+                                        'paid'    => 'table-row-paid-building',
                                         default   => '',
                                     };
                                 @endphp
-                                <tr class="{{ $rowClass }}">
+                                <tr class="{{ $rowClass }} align-middle">
                                     {{-- SL --}}
                                     <td>{{ $key + 1 }}</td>
 
-                                    {{-- Building --}}
+                                    {{-- Building Name & Address --}}
                                     <td>
                                         <strong>{{ $row['building']->name }}</strong>
                                         <br>
@@ -202,73 +209,18 @@
                                         </small>
                                     </td>
 
-                                    {{-- Flat --}}
+                                    {{-- Flats Info Summary --}}
                                     <td>
-                                        <strong>{{ $row['flat']->flat_name }}</strong>
-                                        @if($row['flat']->floor)
-                                            <br><small class="text-muted">Floor: {{ $row['flat']->floor }}</small>
-                                        @endif
+                                        <span class="badge bg-secondary mb-1">{{ $row['flats']->count() }} Flats</span>
+                                        <br>
+                                        <small class="text-muted">
+                                            {{ $row['occupied_count'] }} Occupied, {{ $row['vacant_count'] }} Vacant
+                                        </small>
                                     </td>
 
-                                    {{-- Tenant --}}
-                                    <td>
-                                        @if($row['tenant_name'])
-                                            <span class="fw-semibold">{{ $row['tenant_name'] }}</span>
-                                            @if($row['tenant_phone'])
-                                                <br><small class="text-muted"><i class="fa-solid fa-phone me-1"></i>{{ $row['tenant_phone'] }}</small>
-                                            @endif
-                                        @else
-                                            <span class="badge bg-secondary">Vacant</span>
-                                        @endif
-                                    </td>
-
-                                    {{-- Total Rent --}}
+                                    {{-- Total Monthly Rent --}}
                                     <td>
                                         <strong>৳ {{ number_format($row['total_rent'], 0) }}</strong>
-                                        <br><small class="text-muted">/ month</small>
-                                    </td>
-
-                                    {{-- Bill Status --}}
-                                    <td>
-                                        @if($status === 'paid')
-                                            <span class="badge bg-success px-2 py-1">
-                                                <i class="fa-solid fa-circle-check me-1"></i>Paid
-                                            </span>
-                                        @elseif($status === 'due')
-                                            <span class="badge bg-danger px-2 py-1">
-                                                <i class="fa-solid fa-circle-xmark me-1"></i>Due
-                                            </span>
-                                            @if($row['overdue_count'] > 1)
-                                                <br>
-                                                <span class="badge mt-1" style="background:#7c2d12; font-size:0.72rem;">
-                                                    <i class="fa-solid fa-triangle-exclamation me-1"></i>
-                                                    {{ $row['overdue_count'] }} months overdue
-                                                </span>
-                                            @endif
-                                        @elseif($status === 'partial')
-                                            <span class="badge bg-warning text-dark px-2 py-1">
-                                                <i class="fa-solid fa-circle-half-stroke me-1"></i>Partial
-                                            </span>
-                                            @if($row['overdue_count'] > 1)
-                                                <br>
-                                                <span class="badge mt-1" style="background:#78350f; font-size:0.72rem;">
-                                                    <i class="fa-solid fa-triangle-exclamation me-1"></i>
-                                                    {{ $row['overdue_count'] }} months overdue
-                                                </span>
-                                            @endif
-                                        @else
-                                            <span class="badge bg-secondary px-2 py-1">
-                                                <i class="fa-solid fa-clock me-1"></i>No Bill Yet
-                                            </span>
-                                        @endif
-
-                                        {{-- Latest bill month label --}}
-                                        @if($row['latest_bill'])
-                                            <br>
-                                            <small class="text-muted mt-1 d-inline-block">
-                                                {{ \Carbon\Carbon::createFromFormat('Y-m', $row['latest_bill']->bill_month)->format('M Y') }}
-                                            </small>
-                                        @endif
                                     </td>
 
                                     {{-- Outstanding Amount --}}
@@ -282,44 +234,177 @@
                                         @endif
                                     </td>
 
-                                    {{-- Actions --}}
+                                    {{-- Status Badge --}}
                                     <td>
-                                        <div class="d-flex gap-2 align-items-center flex-wrap">
-                                            {{-- View Flat --}}
-                                            <a href="{{ route('admin.flats.show', [$row['building']->id, $row['flat']->id]) }}"
-                                               title="View Flat" style="color:#2563eb;">
-                                                <i class="fa-solid fa-eye"></i>
-                                            </a>
+                                        @if($bStatus === 'paid')
+                                            <span class="badge bg-success px-2 py-1">
+                                                <i class="fa-solid fa-circle-check me-1"></i>All Paid
+                                            </span>
+                                        @else
+                                            <span class="badge bg-danger px-2 py-1">
+                                                <i class="fa-solid fa-circle-xmark me-1"></i>Due Rent
+                                            </span>
+                                        @endif
+                                    </td>
 
-                                            {{-- View Bills --}}
-                                            <a href="{{ route('admin.bills.index', [$row['building']->id, $row['flat']->id]) }}"
-                                               title="View Bills" style="color:#d97706;">
-                                                <i class="fa-solid fa-file-invoice-dollar"></i>
-                                            </a>
-
-                                            {{-- Mark as Paid (only if there's a pending bill) --}}
-                                            @if($row['latest_bill'] && $status !== 'paid' && $status !== 'no_bill')
-                                                <button type="button"
-                                                    class="btn-mark-paid"
-                                                    style="border:none;background:none;color:#16a34a;cursor:pointer;"
-                                                    title="Mark Latest Bill as Paid"
-                                                    data-bill-id="{{ $row['latest_bill']->id }}"
-                                                    data-flat-name="{{ $row['flat']->flat_name }}"
-                                                    data-month="{{ \Carbon\Carbon::createFromFormat('Y-m', $row['latest_bill']->bill_month)->format('M Y') }}"
-                                                    data-amount="{{ number_format($row['latest_bill']->remaining_amount, 0) }}"
-                                                    data-bs-toggle="modal"
-                                                    data-bs-target="#markPaidModal">
-                                                    <i class="fa-solid fa-circle-check"></i>
-                                                </button>
-                                            @endif
+                                    {{-- Actions: View Flats Toggle --}}
+                                    <td class="text-center">
+                                        <button class="btn btn-sm btn-blue btn-toggle-flats"
+                                                data-bs-toggle="collapse"
+                                                data-bs-target="#flats-collapse-{{ $row['building']->id }}"
+                                                aria-expanded="false"
+                                                aria-controls="flats-collapse-{{ $row['building']->id }}">
+                                            <i class="fa-solid fa-chevron-down me-1"></i> View Flats
+                                        </button>
+                                    </td>
+                                </tr>
+                                
+                                {{-- Collapsible Row showing Flats list --}}
+                                <tr class="collapse-row">
+                                    <td colspan="7" class="p-0 border-0">
+                                        <div class="collapse" id="flats-collapse-{{ $row['building']->id }}">
+                                            <div class="p-4 rounded-3 m-2 shadow-sm" style="background: rgba(255, 255, 255, 0.02); border: 1px solid rgba(255, 255, 255, 0.05);">
+                                                <h6 class="text-primary mb-3 text-start">
+                                                    <i class="fa-solid fa-building me-1"></i> Flats list for: {{ $row['building']->name }}
+                                                </h6>
+                                                <div class="table-responsive">
+                                                    <table class="table table-bordered table-dark table-sm align-middle text-center mb-0">
+                                                        <thead class="table-dark">
+                                                            <tr>
+                                                                <th width="45">SL</th>
+                                                                <th>Flat</th>
+                                                                <th>Tenant</th>
+                                                                <th>Total Rent</th>
+                                                                <th>Bill Status</th>
+                                                                <th>Outstanding</th>
+                                                                <th width="120">Actions</th>
+                                                            </tr>
+                                                        </thead>
+                                                        <tbody>
+                                                            @forelse($row['flats'] as $fIdx => $fRow)
+                                                                @php
+                                                                    $fStatus = $fRow['display_status'];
+                                                                    $fClass = match($fStatus) {
+                                                                        'due'     => 'table-row-due',
+                                                                        'partial' => 'table-row-partial',
+                                                                        'paid'    => 'table-row-paid',
+                                                                        default   => '',
+                                                                    };
+                                                                @endphp
+                                                                <tr class="{{ $fClass }}">
+                                                                    <td class="text-white">{{ $fIdx + 1 }}</td>
+                                                                    <td class="text-white">
+                                                                        <strong>{{ $fRow['flat']->flat_name }}</strong>
+                                                                        @if($fRow['flat']->floor)
+                                                                            <br><small class="text-white">Floor: {{ $fRow['flat']->floor }}</small>
+                                                                        @endif
+                                                                    </td>
+                                                                    <td class="text-white">
+                                                                        @if($fRow['tenant_name'])
+                                                                            <span class="fw-semibold">{{ $fRow['tenant_name'] }}</span>
+                                                                            @if($fRow['tenant_phone'])
+                                                                                <br><small class="text-white"><i class="fa-solid fa-phone me-1"></i>{{ $fRow['tenant_phone'] }}</small>
+                                                                            @endif
+                                                                        @else
+                                                                            <span class="badge bg-secondary">Vacant</span>
+                                                                        @endif
+                                                                    </td>
+                                                                    <td class="text-white">
+                                                                        <strong>৳ {{ number_format($fRow['total_rent'], 0) }}</strong>
+                                                                        <br><small class="text-white">/ month</small>
+                                                                    </td>
+                                                                    <td>
+                                                                        @if($fStatus === 'paid')
+                                                                            <span class="badge bg-success px-2 py-1">
+                                                                                <i class="fa-solid fa-circle-check me-1"></i>Paid
+                                                                            </span>
+                                                                        @elseif($fStatus === 'due')
+                                                                            <span class="badge bg-danger px-2 py-1">
+                                                                                <i class="fa-solid fa-circle-xmark me-1"></i>Due
+                                                                            </span>
+                                                                            @if($fRow['overdue_count'] > 1)
+                                                                                <br>
+                                                                                <span class="badge mt-1" style="background:#7c2d12; font-size:0.72rem;">
+                                                                                    <i class="fa-solid fa-triangle-exclamation me-1"></i>
+                                                                                    {{ $fRow['overdue_count'] }} months overdue
+                                                                                </span>
+                                                                            @endif
+                                                                        @elseif($fStatus === 'partial')
+                                                                            <span class="badge bg-warning text-dark px-2 py-1">
+                                                                                <i class="fa-solid fa-circle-half-stroke me-1"></i>Partial
+                                                                            </span>
+                                                                            @if($fRow['overdue_count'] > 1)
+                                                                                <br>
+                                                                                <span class="badge mt-1" style="background:#78350f; font-size:0.72rem;">
+                                                                                    <i class="fa-solid fa-triangle-exclamation me-1"></i>
+                                                                                    {{ $fRow['overdue_count'] }} months overdue
+                                                                                </span>
+                                                                            @endif
+                                                                        @else
+                                                                            <span class="badge bg-secondary px-2 py-1">
+                                                                                <i class="fa-solid fa-clock me-1"></i>No Bill Yet
+                                                                            </span>
+                                                                        @endif
+                                                                        @if($fRow['latest_bill'])
+                                                                            <br>
+                                                                            <small class="text-white mt-1 d-inline-block">
+                                                                                {{ \Carbon\Carbon::createFromFormat('Y-m', $fRow['latest_bill']->bill_month)->format('M Y') }}
+                                                                            </small>
+                                                                        @endif
+                                                                    </td>
+                                                                    <td>
+                                                                        @if($fRow['total_outstanding'] > 0)
+                                                                            <span class="fw-bold text-danger">
+                                                                                ৳ {{ number_format($fRow['total_outstanding'], 0) }}
+                                                                            </span>
+                                                                        @else
+                                                                            <span class="text-success fw-semibold">—</span>
+                                                                        @endif
+                                                                    </td>
+                                                                    <td>
+                                                                        <div class="d-flex gap-2 align-items-center justify-content-center flex-wrap">
+                                                                            <a href="{{ route('admin.flats.show', [$row['building']->id, $fRow['flat']->id]) }}"
+                                                                               title="View Flat" style="color:#2563eb; font-size: 1rem;">
+                                                                                <i class="fa-solid fa-eye"></i>
+                                                                            </a>
+                                                                            <a href="{{ route('admin.bills.index', [$row['building']->id, $fRow['flat']->id]) }}"
+                                                                               title="View Bills" style="color:#d97706; font-size: 1rem;">
+                                                                                <i class="fa-solid fa-file-invoice-dollar"></i>
+                                                                            </a>
+                                                                            @if($fRow['latest_bill'] && $fStatus !== 'paid' && $fStatus !== 'no_bill')
+                                                                                <button type="button"
+                                                                                    class="btn-mark-paid"
+                                                                                    style="border:none;background:none;color:#16a34a;cursor:pointer; font-size: 1rem; padding:0;"
+                                                                                    title="Mark Latest Bill as Paid"
+                                                                                    data-bill-id="{{ $fRow['latest_bill']->id }}"
+                                                                                    data-flat-name="{{ $fRow['flat']->flat_name }}"
+                                                                                    data-month="{{ \Carbon\Carbon::createFromFormat('Y-m', $fRow['latest_bill']->bill_month)->format('M Y') }}"
+                                                                                    data-amount="{{ number_format($fRow['latest_bill']->remaining_amount, 0) }}"
+                                                                                    data-bs-toggle="modal"
+                                                                                    data-bs-target="#markPaidModal">
+                                                                                    <i class="fa-solid fa-circle-check"></i>
+                                                                                </button>
+                                                                            @endif
+                                                                        </div>
+                                                                    </td>
+                                                                </tr>
+                                                            @empty
+                                                                <tr>
+                                                                    <td colspan="7" class="text-center py-3">No flats in this building matching the filters.</td>
+                                                                </tr>
+                                                            @endforelse
+                                                        </tbody>
+                                                    </table>
+                                                </div>
+                                            </div>
                                         </div>
                                     </td>
                                 </tr>
                             @empty
                                 <tr>
-                                    <td colspan="8" class="text-center py-4">
+                                    <td colspan="7" class="text-center py-4">
                                         <i class="fa-solid fa-inbox fa-2x text-muted mb-2 d-block"></i>
-                                        No flats found.
+                                        No buildings found.
                                     </td>
                                 </tr>
                             @endforelse
@@ -369,9 +454,12 @@
 @push('styles')
 <style>
     /* Row tinting */
-    .table-row-due td       { border-left: 3px solid #ef4444; }
-    .table-row-partial td   { border-left: 3px solid #f59e0b; }
-    .table-row-paid td      { border-left: 3px solid #22c55e; opacity: 0.85; }
+    .table-row-due td       { border-left: 3px solid #ef4444 !important; }
+    .table-row-partial td   { border-left: 3px solid #f59e0b !important; }
+    .table-row-paid td      { border-left: 3px solid #22c55e !important; opacity: 0.85; }
+
+    .table-row-due-building td       { border-left: 4px solid #ef4444 !important; }
+    .table-row-paid-building td      { border-left: 4px solid #22c55e !important; }
 
     /* Smooth hover on action buttons */
     .btn-mark-paid:hover i { transform: scale(1.25); transition: transform 0.15s ease; }
@@ -397,8 +485,10 @@ document.addEventListener('DOMContentLoaded', function () {
     const amountEl    = document.getElementById('modalAmount');
     const formEl      = document.getElementById('markPaidForm');
 
-    document.querySelectorAll('.btn-mark-paid').forEach(function (btn) {
-        btn.addEventListener('click', function () {
+    // Delegate mark-as-paid click to work inside collapsible tables
+    document.addEventListener('click', function(e) {
+        const btn = e.target.closest('.btn-mark-paid');
+        if (btn) {
             const billId    = btn.dataset.billId;
             const flatName  = btn.dataset.flatName;
             const month     = btn.dataset.month;
@@ -408,6 +498,26 @@ document.addEventListener('DOMContentLoaded', function () {
             monthEl.textContent    = month;
             amountEl.textContent   = amount;
             formEl.action = '{{ url("admin/rent-overview/toggle-paid") }}/' + billId;
+        }
+    });
+
+    // Caret chevron and text toggles for collapsible building rows
+    document.querySelectorAll('.collapse').forEach(function(el) {
+        el.addEventListener('show.bs.collapse', function() {
+            const btn = document.querySelector(`[data-bs-target="#${el.id}"]`);
+            if (btn) {
+                btn.innerHTML = '<i class="fa-solid fa-chevron-up me-1"></i> Hide Flats';
+                btn.classList.remove('btn-blue');
+                btn.classList.add('btn-secondary');
+            }
+        });
+        el.addEventListener('hide.bs.collapse', function() {
+            const btn = document.querySelector(`[data-bs-target="#${el.id}"]`);
+            if (btn) {
+                btn.innerHTML = '<i class="fa-solid fa-chevron-down me-1"></i> View Flats';
+                btn.classList.remove('btn-secondary');
+                btn.classList.add('btn-blue');
+            }
         });
     });
 });

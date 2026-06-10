@@ -118,7 +118,7 @@ if (!function_exists('uploadFileDirect')) {
      */
     function uploadFileDirect($file, string $path): ?string
     {
-        if (!$file) {
+        if (!$file || !($file instanceof \Illuminate\Http\UploadedFile) || !$file->isValid()) {
             return null;
         }
         $filename = time() . '_' . uniqid() . '.' . $file->getClientOriginalExtension();

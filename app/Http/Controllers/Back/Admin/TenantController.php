@@ -61,7 +61,15 @@ class TenantController extends Controller
                 ->with('error', 'This flat already has an active tenant. Vacate first.');
         }
 
-        return view('admin.tenants.enroll', compact('building', 'flat'));
+        // Load all tenants, ordering unassigned ones first
+        $tenants = Tenant::withCount(['flatTenants as is_assigned' => function ($query) {
+            $query->where('status', 'active');
+        }])
+        ->orderBy('is_assigned', 'asc')
+        ->latest()
+        ->get();
+
+        return view('admin.tenants.enroll', compact('building', 'flat', 'tenants'));
     }
 
     // ─── 3. Search tenant by phone/name (AJAX or form) ────────────────
@@ -293,12 +301,9 @@ class TenantController extends Controller
 
             $tenant = Tenant::create($tenantData);
 
-            // Assign tenant to flat
-            $this->assignTenantToFlat($request, $flat, $tenant->id);
-
             DB::commit();
-            return redirect()->route('admin.tenants.index', [$flat->building_id, $flat->id])
-                ->with('success', 'Tenant enrolled successfully.');
+            return redirect()->route('admin.tenants.enroll', [$flat->building_id, $flat->id])
+                ->with('success', 'Tenant profile created successfully. You can now assign them below.');
         } catch (\Exception $e) {
             DB::rollBack();
             return back()->withInput()->with('error', 'Error: ' . $e->getMessage() . ' line: ' . $e->getLine());
@@ -311,15 +316,41 @@ class TenantController extends Controller
     {
         $flat = $this->getFlat($buildingId, $flatId);
 
+        // Filter out empty file inputs from the request before validation
+        foreach (['advance_document', 'agreement_document', 'police_form_document', 'notice_document', 'house_rent_copy'] as $key) {
+            if ($request->has($key) || $request->hasFile($key)) {
+                $files = $request->file($key);
+                if (is_array($files)) {
+                    $validFiles = [];
+                    foreach ($files as $file) {
+                        if ($file && $file instanceof \Illuminate\Http\UploadedFile && $file->isValid()) {
+                            $validFiles[] = $file;
+                        }
+                    }
+                    if (empty($validFiles)) {
+                        $request->files->remove($key);
+                        $request->request->remove($key);
+                    } else {
+                        $request->files->set($key, $validFiles);
+                    }
+                }
+            }
+        }
+
         $request->validate([
-            'tenant_id'            => 'required|exists:tenants,id',
-            'start_date'           => 'required|date',
-            'advance_amount'       => 'nullable|numeric|min:0',
-            'advance_document'     => 'nullable|file|mimes:pdf,jpg,png|max:2048',
-            'agreement_document'   => 'nullable|file|mimes:pdf,jpg,png|max:2048',
-            'police_form_document' => 'nullable|file|mimes:pdf,jpg,png|max:2048',
-            'notice_document'      => 'nullable|file|mimes:pdf,jpg,png|max:2048',
-            'house_rent_copy'      => 'nullable|file|mimes:pdf,jpg,png|max:2048',
+            'tenant_id'              => 'required|exists:tenants,id',
+            'start_date'             => 'required|date',
+            'advance_amount'         => 'nullable|numeric|min:0',
+            'advance_document'       => 'nullable|array',
+            'advance_document.*'     => 'file|mimes:pdf,jpg,png',
+            'agreement_document'     => 'nullable|array',
+            'agreement_document.*'   => 'file|mimes:pdf,jpg,png',
+            'police_form_document'   => 'nullable|array',
+            'police_form_document.*' => 'file|mimes:pdf,jpg,png',
+            'notice_document'        => 'nullable|array',
+            'notice_document.*'      => 'file|mimes:pdf,jpg,png',
+            'house_rent_copy'        => 'nullable|array',
+            'house_rent_copy.*'      => 'file|mimes:pdf,jpg,png',
         ]);
 
         try {

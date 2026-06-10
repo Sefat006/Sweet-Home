@@ -44,6 +44,12 @@
 
             </ul>
         </li>
+        <li class="">
+            <a href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                <i class="fa-solid fa-sign-out-alt"></i>
+                <span>Logout</span>
+            </a>
+        </li>
         @endif
         
 
@@ -96,6 +102,12 @@
             <a href="{{ route('admin.rent.overview')}}">
                 <i class="fa-solid fa-file-invoice-dollar"></i>
                 <span>Rent Overview</span>
+            </a>
+        </li>
+        <li class="">
+            <a href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
+                <i class="fa-solid fa-sign-out-alt"></i>
+                <span>Logout</span>
             </a>
         </li>
         @endif

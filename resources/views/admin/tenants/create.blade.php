@@ -496,44 +496,8 @@
                             </div>
                         </div>
 
-                        <!-- ════════════════════════════════════════
-                             SECTION 9 · FLAT ASSIGNMENT DETAILS
-                        ════════════════════════════════════════ -->
-                        <h4 class="sec-head">9. Flat Assignment Details</h4>
-                        <div class="row">
-                            <div class="col-md-6 col-sm-12 mb-3">
-                                <label class="form-label">Start Date <span class="req">*</span></label>
-                                <input type="date" name="start_date" class="form-control" value="{{ old('start_date', $flatTenant->start_date ?? '') }}" required>
-                            </div>
-                            <div class="col-md-6 col-sm-12 mb-3">
-                                <label class="form-label">Advance Amount</label>
-                                <input type="number" step="0.01" name="advance_amount" class="form-control" value="{{ old('advance_amount', $flatTenant->advance_amount ?? '') }}" placeholder="0.00">
-                            </div>
-
-                            <div class="col-md-4 col-sm-12 mb-3">
-                                <label class="form-label">Advance Document</label>
-                                @include('admin.tenants.partials._multifile', ['fieldId' => 'f_advance_document', 'fieldName' => 'advance_document[]', 'existing' => isset($flatTenant) && $flatTenant->advance_document])
-                            </div>
-                            <div class="col-md-4 col-sm-12 mb-3">
-                                <label class="form-label">Agreement Document</label>
-                                @include('admin.tenants.partials._multifile', ['fieldId' => 'f_agreement_document', 'fieldName' => 'agreement_document[]', 'existing' => isset($flatTenant) && $flatTenant->agreement_document])
-                            </div>
-                            <div class="col-md-4 col-sm-12 mb-3">
-                                <label class="form-label">Police Form Document</label>
-                                @include('admin.tenants.partials._multifile', ['fieldId' => 'f_police_form_document', 'fieldName' => 'police_form_document[]', 'existing' => isset($flatTenant) && $flatTenant->police_form_document])
-                            </div>
-                            <div class="col-md-4 col-sm-12 mb-3">
-                                <label class="form-label">Notice Document</label>
-                                @include('admin.tenants.partials._multifile', ['fieldId' => 'f_notice_document', 'fieldName' => 'notice_document[]', 'existing' => isset($flatTenant) && $flatTenant->notice_document])
-                            </div>
-                            <div class="col-md-4 col-sm-12 mb-3">
-                                <label class="form-label">House Rent Copy</label>
-                                @include('admin.tenants.partials._multifile', ['fieldId' => 'f_house_rent_copy', 'fieldName' => 'house_rent_copy[]', 'existing' => isset($flatTenant) && $flatTenant->house_rent_copy])
-                            </div>
-                        </div>
-
                         <div class="text-end mt-4">
-                            <button type="submit" class="btn btn-success"><i class="fa-solid fa-save"></i> Save & Enroll</button>
+                            <button type="submit" class="btn btn-success"><i class="fa-solid fa-save"></i> Save Tenant Profile</button>
                         </div>
                     </form>
                 </div>

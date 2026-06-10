@@ -234,7 +234,7 @@
     /* ── Education grid row ─────────────────────────────────────── */
     .pf-edu-row {
         display: grid;
-        grid-template-columns: 2fr 2fr 1.3fr 1fr 32px;
+        grid-template-columns: 1.5fr 2fr 100px 2fr 32px;
         gap: 8px;
         margin-bottom: 8px;
         align-items: center;
@@ -242,11 +242,11 @@
 
     @media(max-width:768px) {
         .pf-edu-row {
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
         }
 
         .pf-edu-row .btn-pf-del {
-            grid-column: span 2;
+            grid-column: span 1;
             justify-self: start;
         }
     }
@@ -451,6 +451,51 @@
         color: var(--pf-muted);
         margin: 0;
     }
+
+    /* Occupation Custom Styles */
+    .occ-card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        padding: 16px;
+        margin-bottom: 12px;
+    }
+    .pf-file.dragover {
+        border-color: var(--pf-accent);
+        background: var(--pf-accent-lt);
+    }
+    .pf-file__names {
+        margin-top: 6px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+    }
+    .pf-file__tag {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        background: var(--pf-accent-lt);
+        border-radius: 5px;
+        padding: 2px 8px;
+        font-size: .72rem;
+        color: var(--pf-accent);
+        max-width: 200px;
+    }
+    .pf-file__tag span {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+    .pf-file__tag button {
+        background: none;
+        border: none;
+        color: #ef4444;
+        font-size: .75rem;
+        cursor: pointer;
+        padding: 0;
+        line-height: 1;
+        flex-shrink: 0;
+    }
 </style>
 @endpush
 
@@ -624,84 +669,18 @@
 
                     <div class="pf-sub">
                         <div class="pf-sub__label">Educational Qualifications</div>
-                        <div id="edu_rows">
-                            {{-- Existing rows pre-filled from DB --}}
-                            @php
-                            $educationData = is_array($user->education) ? $user->education : (json_decode($user->education, true) ?? []);
-                            if (empty($educationData)) $educationData = [['exam'=>'','institute'=>'','date'=>'','year'=>'']];
-                            @endphp
-                            @foreach($educationData as $edu)
-                            <div class="pf-edu-row">
-                                <input type="text" name="edu_exam[]" class="form-control" placeholder="Degree / Exam (e.g. B.Sc)" value="{{ old('edu_exam.'.$loop->index, $edu['exam'] ?? '') }}">
-                                <input type="text" name="edu_institute[]" class="form-control" placeholder="Institute / University" value="{{ old('edu_institute.'.$loop->index, $edu['institute'] ?? '') }}">
-                                <input type="date" name="edu_date[]" class="form-control" title="Passing Date" value="{{ old('edu_date.'.$loop->index, $edu['date'] ?? '') }}">
-                                <input type="number" name="edu_year[]" class="form-control" placeholder="Year" min="1970" max="2099" value="{{ old('edu_year.'.$loop->index, $edu['year'] ?? '') }}">
-                                <button type="button" class="btn-pf-del" onclick="removeEduRow(this)" title="Remove">✕</button>
-                            </div>
-                            @endforeach
-                        </div>
-                        <div class="mt-2">
-                            <button type="button" class="btn-pf-add" onclick="addEduRow()">+ Add Qualification</button>
-                        </div>
-                        <div class="mt-3 col-md-6">
-                            <label class="pf-label">Certificate / Transcript</label>
-                            <div class="pf-file" onclick="document.getElementById('f_edu_doc').click()">
-                                <div class="pf-file__icon">
-                                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 002.112 2.13" />
-                                    </svg>
-                                </div>
-                                <div class="pf-file__text">
-                                    <div class="pf-file__cta">Attach document</div>
-                                    <div class="pf-file__hint">PDF or Image, max 5 MB</div>
-                                    @if($user->education_document)
-                                    <div class="pf-file__existing">&#10003; Current: {{ basename($user->education_document) }}</div>
-                                    @endif
-                                    <div class="pf-file__name" id="f_edu_doc_name"></div>
-                                </div>
-                            </div>
-                            <input type="file" id="f_edu_doc" name="education_document" accept=".pdf,.jpg,.jpeg,.png" class="d-none" onchange="pfFile(this,'f_edu_doc_name')">
-                        </div>
+                        <div id="education_list" style="margin-bottom:12px;"></div>
+                        <button type="button" class="btn-pf-add mb-3" onclick="addEducation()">
+                            <i class="fa-solid fa-plus"></i> Add Qualification
+                        </button>
                     </div>
 
                     <div class="pf-sub" style="margin-bottom:0">
                         <div class="pf-sub__label">Occupation</div>
-                        <div class="row g-3">
-                            <div class="col-md-4 col-sm-6">
-                                <label class="pf-label">Position / Designation</label>
-                                <input type="text" name="occupation_position" class="form-control" placeholder="e.g. Senior Engineer"
-                                    value="{{ old('occupation_position', $user->occupation_position) }}">
-                            </div>
-                            <div class="col-md-4 col-sm-6">
-                                <label class="pf-label">Company / Organisation</label>
-                                <input type="text" name="occupation_company" class="form-control" placeholder="Company name"
-                                    value="{{ old('occupation_company', $user->occupation_company) }}">
-                            </div>
-                            <div class="col-md-4 col-sm-12">
-                                <label class="pf-label">Company Address</label>
-                                <input type="text" name="occupation_address" class="form-control" placeholder="Office address"
-                                    value="{{ old('occupation_address', $user->occupation_address) }}">
-                            </div>
-                            <div class="col-md-6">
-                                <label class="pf-label">Occupation Document</label>
-                                <div class="pf-file" onclick="document.getElementById('f_occ_doc').click()">
-                                    <div class="pf-file__icon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 002.112 2.13" />
-                                        </svg>
-                                    </div>
-                                    <div class="pf-file__text">
-                                        <div class="pf-file__cta">Attach document</div>
-                                        <div class="pf-file__hint">Employment letter / ID (PDF/Image)</div>
-                                        @if($user->occupation_document)
-                                        <div class="pf-file__existing">&#10003; Current file uploaded</div>
-                                        @endif
-                                        <div class="pf-file__name" id="f_occ_doc_name"></div>
-                                    </div>
-                                </div>
-                                <input type="file" id="f_occ_doc" name="occupation_document" accept=".pdf,.jpg,.jpeg,.png" class="d-none" onchange="pfFile(this,'f_occ_doc_name')">
-                            </div>
-                        </div>
+                        <div id="occupation_list" style="margin-bottom:12px;"></div>
+                        <button type="button" class="btn-pf-add mb-3" onclick="addOccupation()">
+                            <i class="fa-solid fa-plus"></i> Add Occupation
+                        </button>
                     </div>
 
                 </div>
@@ -1188,20 +1167,35 @@
     }
 
     /* ── Education rows ────────────────────────────────────────────────── */
-    function addEduRow() {
-        document.getElementById('edu_rows').insertAdjacentHTML('beforeend', `
-        <div class="pf-edu-row">
-            <input type="text"   name="edu_exam[]"      class="form-control" placeholder="Degree / Exam">
-            <input type="text"   name="edu_institute[]" class="form-control" placeholder="Institute / University">
-            <input type="date"   name="edu_date[]"      class="form-control" title="Passing Date">
-            <input type="number" name="edu_year[]"      class="form-control" placeholder="Year" min="1970" max="2099">
-            <button type="button" class="btn-pf-del" onclick="removeEduRow(this)" title="Remove">✕</button>
-        </div>`);
+    var eduCount = 0;
+
+    function addEducation(data = null) {
+        var idx = eduCount++;
+        var list = document.getElementById('education_list');
+        var row = document.createElement('div');
+        row.className = 'pf-edu-row';
+        row.id = 'edu_row_' + idx;
+
+        var delBtn = (idx > 0) ? '<button type="button" class="btn-pf-del" onclick="removeEdu(' + idx + ')" title="Remove">✕</button>' : '<div style="width:32px;"></div>';
+
+        var exam = data && data.exam ? data.exam : '';
+        var institution = data && data.institute ? data.institute : '';
+        var year = data && data.year ? data.year : '';
+        var docs = data && data.documents ? data.documents : [];
+
+        row.innerHTML =
+            '<input type="text" name="edu_exam[' + idx + ']" class="form-control" placeholder="Degree / Exam (e.g. B.Sc)" value="' + exam + '">' +
+            '<input type="text" name="edu_institute[' + idx + ']" class="form-control" placeholder="Institute / University" value="' + institution + '">' +
+            '<input type="number" name="edu_year[' + idx + ']" class="form-control" placeholder="Year" min="1950" max="2099" value="' + year + '">' +
+            '<div>' + makePfZoneHTML('edu_doc_' + idx, 'edu_document[' + idx + '][]', docs) + '</div>' +
+            delBtn;
+
+        list.appendChild(row);
     }
 
-    function removeEduRow(btn) {
-        const rows = document.querySelectorAll('.pf-edu-row');
-        if (rows.length > 1) btn.closest('.pf-edu-row').remove();
+    function removeEdu(idx) {
+        var el = document.getElementById('edu_row_' + idx);
+        if (el) el.remove();
     }
 
     /* ── Marital status ────────────────────────────────────────────────── */
@@ -1310,7 +1304,220 @@
         return String(str).replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
     }
 
+    /* ─────────────────────────────────────────────────────
+       MULTI-FILE WIDGET
+       Each widget is self-contained; files accumulate in a
+       DataTransfer object so the server receives all of them.
+    ───────────────────────────────────────────────────── */
+    var pfStores = {}; // fieldId → DataTransfer
+
+    function pfInitStore(fieldId) {
+        if (!pfStores[fieldId]) pfStores[fieldId] = new DataTransfer();
+    }
+
+    function pfAddFiles(fieldId, newFiles) {
+        pfInitStore(fieldId);
+        var dt = pfStores[fieldId];
+        for (var i = 0; i < newFiles.length; i++) dt.items.add(newFiles[i]);
+        pfSync(fieldId);
+    }
+
+    function pfRemoveFile(fieldId, index) {
+        pfInitStore(fieldId);
+        var old = pfStores[fieldId];
+        var fresh = new DataTransfer();
+        for (var i = 0; i < old.files.length; i++) {
+            if (i !== index) fresh.items.add(old.files[i]);
+        }
+        pfStores[fieldId] = fresh;
+        pfSync(fieldId);
+    }
+
+    function pfSync(fieldId) {
+        var input   = document.getElementById(fieldId);
+        var nameBox = document.getElementById(fieldId + '_names');
+        if (!input || !nameBox) return;
+        var dt = pfStores[fieldId];
+        input.files = dt.files;
+        // Render tags
+        nameBox.innerHTML = '';
+        for (var i = 0; i < dt.files.length; i++) {
+            (function(idx, fname){
+                var tag = document.createElement('span');
+                tag.className = 'pf-file__tag';
+                tag.innerHTML = '<span title="'+fname+'">'+fname+'</span>';
+                var btn = document.createElement('button');
+                btn.type = 'button'; btn.textContent = '✕';
+                btn.onclick = function(){ pfRemoveFile(fieldId, idx); };
+                tag.appendChild(btn);
+                nameBox.appendChild(tag);
+            })(i, dt.files[i].name);
+        }
+    }
+
+    function pfZoneDragOver(e, el) {
+        e.preventDefault(); e.stopPropagation();
+        el.classList.add('dragover');
+    }
+    function pfZoneDragLeave(e, el) {
+        e.preventDefault(); e.stopPropagation();
+        el.classList.remove('dragover');
+    }
+    function pfZoneDrop(e, el, fieldId) {
+        e.preventDefault(); e.stopPropagation();
+        el.classList.remove('dragover');
+        if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+            pfAddFiles(fieldId, e.dataTransfer.files);
+        }
+    }
+    function pfZoneChange(input, fieldId) {
+        if (input.files && input.files.length > 0) {
+            pfAddFiles(fieldId, input.files);
+        }
+    }
+
+    /* ─────────────────────────────────────────────────────
+       HELPER: build pf-file zone HTML string
+    ───────────────────────────────────────────────────── */
+    function makePfZoneHTML(fieldId, fieldName, existingFiles = null) {
+        var existingListHtml = '';
+        if (existingFiles && Array.isArray(existingFiles) && existingFiles.length > 0) {
+            existingListHtml = '<div class="pf-file__existing-list mt-2" style="font-size: 0.75rem; color: #16a34a;">';
+            existingFiles.forEach(function(file, index) {
+                if (file) {
+                    var basename = file.split('/').pop();
+                    existingListHtml += '<div class="d-flex align-items-center gap-2 mb-1">' +
+                                        '<i class="fa-solid fa-paperclip"></i>' +
+                                        '<a href="/' + file + '" target="_blank" class="text-success text-decoration-none" onclick="event.stopPropagation();">' +
+                                        'File ' + (index + 1) + ' (' + basename + ')' +
+                                        '</a>' +
+                                        '</div>';
+                }
+            });
+            existingListHtml += '</div>';
+        }
+
+        return '<div class="pf-file" onclick="document.getElementById(\'' + fieldId + '\').click()" ' +
+                   'ondragover="pfZoneDragOver(event,this)" ondragleave="pfZoneDragLeave(event,this)" ' +
+                   'ondrop="pfZoneDrop(event,this,\'' + fieldId + '\')">' +
+               '<div class="pf-file__icon">' +
+                   '<svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.8" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" d="M18.375 12.739l-7.693 7.693a4.5 4.5 0 01-6.364-6.364l10.94-10.94A3 3 0 1119.5 7.372L8.552 18.32m.009-.01l-.01.01m5.699-9.941-7.81 7.81a1.5 1.5 0 002.112 2.13"/></svg>' +
+               '</div>' +
+               '<div class="pf-file__text">' +
+                   '<div class="pf-file__cta">Drag & Drop or Click</div>' +
+                   '<div class="pf-file__hint">Images, PDFs, docs — any size</div>' +
+                   existingListHtml +
+                   '<div class="pf-file__names" id="' + fieldId + '_names"></div>' +
+               '</div>' +
+               '</div>' +
+               '<input type="file" id="' + fieldId + '" name="' + fieldName + '" class="d-none" multiple ' +
+                   'onchange="pfZoneChange(this,\'' + fieldId + '\')">';
+    }
+
+    /* ─────────────────────────────────────────────────────
+       OCCUPATION  (job | business)
+    ───────────────────────────────────────────────────── */
+    var occCount = 0;
+
+    function addOccupation(data = null) {
+        var idx = occCount++;
+        var list = document.getElementById('occupation_list');
+        var card = document.createElement('div');
+        card.className = 'occ-card';
+        card.id = 'occ_card_' + idx;
+
+        var delBtn = (idx > 0) ? '<button type="button" class="btn-pf-del ms-auto mt-4" onclick="removeOcc(' + idx + ')">✕</button>' : '';
+
+        var typeSelected = data && data.type ? data.type : '';
+        
+        // Fallbacks
+        var company = data && data.company ? data.company : '';
+        var address = data && data.address ? data.address : '';
+        var business_name = data && data.business_name ? data.business_name : '';
+        var business_address = data && data.business_address ? data.business_address : '';
+        
+        var occDocs = data && data.documents ? data.documents : [];
+        var tradeDocs = data && data.trade_docs ? data.trade_docs : [];
+        var tinDocs = data && data.tin_docs ? data.tin_docs : [];
+        var otherDocs = data && data.other_docs ? data.other_docs : [];
+
+        card.innerHTML =
+            '<div class="row align-items-center mb-2">' +
+                '<div class="col-md-4 col-sm-8 mb-3">' +
+                    '<label class="pf-label" style="color:#94a3b8;font-size:.85rem;font-weight:600;">Occupation Type</label>' +
+                    '<select name="occupation_type[' + idx + ']" id="occ_type_val_' + idx + '" class="form-control" onchange="setOccType(' + idx + ', this.value)">' +
+                        '<option value="" ' + (typeSelected === '' ? 'selected' : '') + ' disabled>Select</option>' +
+                        '<option value="job" ' + (typeSelected === 'job' ? 'selected' : '') + '>Job</option>' +
+                        '<option value="business" ' + (typeSelected === 'business' ? 'selected' : '') + '>Business</option>' +
+                    '</select>' +
+                '</div>' +
+                '<div class="col-md-8 col-sm-4 mb-3 text-end">' + delBtn + '</div>' +
+            '</div>' +
+
+            // JOB fields
+            '<div id="occ_job_' + idx + '" style="display:' + (typeSelected === 'job' ? 'block' : 'none') + ';">' +
+                '<div class="row g-3">' +
+                    '<div class="col-md-4 col-sm-12"><label class="pf-label">Company Name</label>' +
+                        '<input type="text" name="occupation_company[' + idx + ']" class="form-control" value="' + company + '"></div>' +
+                    '<div class="col-md-4 col-sm-12"><label class="pf-label">Address</label>' +
+                        '<input type="text" name="occupation_address[' + idx + ']" class="form-control" value="' + address + '"></div>' +
+                    '<div class="col-md-4 col-sm-12"><label class="pf-label">Verification Document <small style="color:#6b7280;">(optional)</small></label>' +
+                        makePfZoneHTML('occ_doc_' + idx, 'occupation_document[' + idx + '][]', occDocs) +
+                    '</div>' +
+                '</div>' +
+            '</div>' +
+
+            // BUSINESS fields
+            '<div id="occ_business_' + idx + '" style="display:' + (typeSelected === 'business' ? 'block' : 'none') + ';">' +
+                '<div class="row g-3">' +
+                    '<div class="col-md-6 col-sm-12"><label class="pf-label">Business Name</label>' +
+                        '<input type="text" name="business_name[' + idx + ']" class="form-control" value="' + business_name + '"></div>' +
+                    '<div class="col-md-6 col-sm-12"><label class="pf-label">Business Address</label>' +
+                        '<input type="text" name="business_address[' + idx + ']" class="form-control" value="' + business_address + '"></div>' +
+                    '<div class="col-md-4 col-sm-12"><label class="pf-label">Trade License Document</label>' +
+                        makePfZoneHTML('biz_trade_doc_' + idx, 'trade_license_document[' + idx + '][]', tradeDocs) +
+                    '</div>' +
+                    '<div class="col-md-4 col-sm-12"><label class="pf-label">TIN Certificate</label>' +
+                        makePfZoneHTML('biz_tin_doc_' + idx, 'tin_certificate_document[' + idx + '][]', tinDocs) +
+                    '</div>' +
+                    '<div class="col-md-4 col-sm-12"><label class="pf-label">Bank Solvency / Other Docs</label>' +
+                        makePfZoneHTML('biz_other_doc_' + idx, 'business_other_document[' + idx + '][]', otherDocs) +
+                    '</div>' +
+                '</div>' +
+            '</div>';
+
+        list.appendChild(card);
+    }
+
+    function setOccType(idx, type) {
+        var jobDiv = document.getElementById('occ_job_' + idx);
+        var bizDiv = document.getElementById('occ_business_' + idx);
+        if (jobDiv) jobDiv.style.display = (type === 'job') ? 'block' : 'none';
+        if (bizDiv) bizDiv.style.display = (type === 'business') ? 'block' : 'none';
+    }
+
+    function removeOcc(idx) {
+        var el = document.getElementById('occ_card_' + idx);
+        if (el) el.remove();
+    }
+
     /* ── Init on page load ─────────────────────────────────────────────── */
+    // Render existing occupations, or a blank one if none
+    const _existingOccupation = @json($user->occupation_info ?? []);
+    if (_existingOccupation && _existingOccupation.length > 0) {
+        _existingOccupation.forEach(occ => addOccupation(occ));
+    } else {
+        addOccupation();
+    }
+
+    // Render existing education, or a blank one if none
+    const _existingEducation = @json($user->education ?? []);
+    if (_existingEducation && _existingEducation.length > 0) {
+        _existingEducation.forEach(edu => addEducation(edu));
+    } else {
+        addEducation();
+    }
+
     renderSpouseCards();
     renderChildCards();
 </script>
