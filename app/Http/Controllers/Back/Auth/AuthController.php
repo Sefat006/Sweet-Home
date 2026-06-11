@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Back\Auth;
 use App\Http\Controllers\Back\SuperAdmin\SuperAdminController;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Services\AutoBillGenerator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -71,6 +72,10 @@ class AuthController extends Controller
                     'email' => 'Your account is pending approval from Super Admin.',
                 ]);
             }
+
+            // ── Auto-generate bills for this admin's flats (current month) ──
+            // Runs silently; any errors are logged, login never fails.
+            AutoBillGenerator::generateForUser($user->id);
 
             return redirect()->route('dashboard');
         }

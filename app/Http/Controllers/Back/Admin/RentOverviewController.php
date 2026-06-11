@@ -54,7 +54,7 @@ class RentOverviewController extends Controller
             $flats = $building->flats;
 
             // Filter by occupancy within building
-            if ($request->filled('occupancy') && in_array($request->occupancy, ['occupied', 'vacant'])) {
+            if ($request->filled('occupancy') && in_array($request->occupancy, ['occupied', 'vacant', 'booked_by_owner'])) {
                 $flats = $flats->filter(fn($f) => $f->status === $request->occupancy);
             }
 
@@ -69,7 +69,9 @@ class RentOverviewController extends Controller
                 $totalOutstanding = $unpaidBills->sum('remaining_amount');
 
                 // Determine display status
-                if (!$latestBill) {
+                if ($flat->status === 'booked_by_owner') {
+                    $displayStatus = 'booked_by_owner';
+                } elseif (!$latestBill) {
                     $displayStatus = 'no_bill';
                 } else {
                     $displayStatus = $latestBill->collection_status;
@@ -105,6 +107,7 @@ class RentOverviewController extends Controller
                 'total_rent'        => (float) $flatRows->sum('total_rent'),
                 'occupied_count'    => $flatRows->filter(fn($fr) => $fr['flat']->status === 'occupied')->count(),
                 'vacant_count'      => $flatRows->filter(fn($fr) => $fr['flat']->status === 'vacant')->count(),
+                'booked_count'      => $flatRows->filter(fn($fr) => $fr['flat']->status === 'booked_by_owner')->count(),
             ];
         });
 

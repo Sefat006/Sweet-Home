@@ -135,7 +135,7 @@
                                         @endphp
                                         <tr class="text-black">
                                             <td>{{ $tenant->name }}</td>
-                                            <td>{{ $tenant->phone }}</td>
+                                            <td>@include('admin.partials.phone_links', ['phone' => $tenant->phone])</td>
                                             <td>{{ $tenant->nid_number ?? 'N/A' }}</td>
                                             <td>
                                                 @if($isAssigned)

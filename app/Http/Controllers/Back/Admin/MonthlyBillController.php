@@ -51,6 +51,12 @@ class MonthlyBillController extends Controller
         $flat     = $this->getFlat($buildingId, $flatId);
         $building = $flat->building;
 
+        // Block bill generation for owner self-use flats
+        if ($flat->status === 'booked_by_owner') {
+            return redirect()->route('admin.bills.index', [$buildingId, $flatId])
+                ->with('error', 'This flat is booked by owner for self-use. No bills can be generated.');
+        }
+
         if ($flat->bill_status !== 'active') {
             return redirect()->route('admin.bills.index', [$buildingId, $flatId])
                 ->with('error', 'Bill is inactive for this flat.');
@@ -78,6 +84,12 @@ class MonthlyBillController extends Controller
     public function store(Request $request, $buildingId, $flatId)
     {
         $flat = $this->getFlat($buildingId, $flatId);
+
+        // Block bill generation for owner self-use flats
+        if ($flat->status === 'booked_by_owner') {
+            return redirect()->route('admin.bills.index', [$buildingId, $flatId])
+                ->with('error', 'This flat is booked by owner for self-use. No bills can be generated.');
+        }
 
         $request->validate([
             'bill_month'         => 'required|date_format:Y-m',

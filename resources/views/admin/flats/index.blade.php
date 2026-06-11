@@ -79,16 +79,26 @@
                                 <td>{{ $key + 1 }}</td>
                                 <td>
                                     <strong>{{ $flat->flat_name }}</strong>
-                                    @if($flat->image)
-                                        <br><img src="{{ asset($flat->image) }}" width="40" height="40" class="object-fit-cover rounded mt-1">
+                                    @if(is_array($flat->documents) && count($flat->documents) > 0)
+                                        @php $firstDoc = $flat->documents[0]; @endphp
+                                        <br>
+                                        @if(preg_match('/\.(jpg|jpeg|png|gif|webp)$/i', $firstDoc))
+                                            <img src="{{ asset($firstDoc) }}" width="40" height="40" class="object-fit-cover rounded mt-1" title="{{ basename($firstDoc) }}">
+                                        @else
+                                            <i class="fa-solid fa-file-lines fa-2x text-secondary mt-1" title="{{ basename($firstDoc) }}"></i>
+                                        @endif
                                     @endif
                                 </td>
                                 <td>{{ $flat->floor ?? '—' }}</td>
                                 <td>{{ $flat->intercom_number ?? '—' }}</td>
                                 <td>
-                                    <span class="badge {{ $flat->status === 'occupied' ? 'bg-success' : 'bg-warning text-dark' }}">
-                                        {{ ucfirst($flat->status) }}
-                                    </span>
+                                    @if($flat->status === 'occupied')
+                                        <span class="badge bg-success">Occupied</span>
+                                    @elseif($flat->status === 'booked_by_owner')
+                                        <span class="badge bg-primary">Booked by Owner</span>
+                                    @else
+                                        <span class="badge bg-warning text-dark">Vacant</span>
+                                    @endif
                                 </td>
                                 <td>{{ $flat->available_for ? ucfirst($flat->available_for) : '—' }}</td>
                                 <td>৳ {{ number_format($flat->total_rent, 0) }}</td>

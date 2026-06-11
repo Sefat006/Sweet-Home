@@ -47,11 +47,12 @@ class FlatController extends Controller
             'flat_name'          => 'required|string|max:100',
             'intercom_number'    => 'nullable|string|max:50',
             'floor'              => 'nullable|string|max:50',
-            'status'             => 'required|in:vacant,occupied',
+            'status'             => 'required|in:vacant,occupied,booked_by_owner',
             'available_for'      => 'nullable|string|max:100',
             'flat_size'          => 'nullable|string|max:100',
             'flat_details'       => 'nullable|string',
-            'image'              => 'nullable|image|mimes:jpeg,png,jpg',
+            'documents'          => 'nullable|array',
+            'documents.*'        => 'file|mimes:jpeg,png,jpg,pdf,doc,docx|max:20480',
             'bill_status'        => 'required|in:active,inactive',
             'house_rent'         => 'nullable|numeric|min:0',
             'wasa'               => 'nullable|numeric|min:0',
@@ -67,7 +68,15 @@ class FlatController extends Controller
         try {
             DB::beginTransaction();
 
-            $image = uploadFileDirect($request->file('image'), 'admin/assets/images/flats');
+            $documents = [];
+            if ($request->hasFile('documents')) {
+                foreach ($request->file('documents') as $file) {
+                    $path = uploadFileDirect($file, 'admin/assets/images/flats');
+                    if ($path) {
+                        $documents[] = $path;
+                    }
+                }
+            }
 
             Flat::create([
                 'building_id'        => $building->id,
@@ -78,7 +87,7 @@ class FlatController extends Controller
                 'available_for'      => $request->available_for,
                 'flat_size'          => $request->flat_size,
                 'flat_details'       => $request->flat_details,
-                'image'              => $image,
+                'documents'          => $documents,
                 'bill_status'        => $request->bill_status,
                 'house_rent'         => $request->house_rent         ?? 0,
                 'wasa'               => $request->wasa               ?? 0,
@@ -123,11 +132,14 @@ class FlatController extends Controller
             'flat_name'          => 'required|string|max:100',
             'intercom_number'    => 'nullable|string|max:50',
             'floor'              => 'nullable|string|max:50',
-            'status'             => 'required|in:vacant,occupied',
+            'status'             => 'required|in:vacant,occupied,booked_by_owner',
             'available_for'      => 'nullable|string|max:100',
             'flat_size'          => 'nullable|string|max:100',
             'flat_details'       => 'nullable|string',
-            'image'              => 'nullable|image|mimes:jpeg,png,jpg',
+            'documents'          => 'nullable|array',
+            'documents.*'        => 'file|mimes:jpeg,png,jpg,pdf,doc,docx|max:20480',
+            'existing_documents' => 'nullable|array',
+            'existing_documents.*' => 'string',
             'bill_status'        => 'required|in:active,inactive',
             'house_rent'         => 'nullable|numeric|min:0',
             'wasa'               => 'nullable|numeric|min:0',
@@ -145,11 +157,30 @@ class FlatController extends Controller
 
             $data = $request->except(['_token', '_method']);
 
-            if ($request->hasFile('image')) {
-                $data['image'] = uploadFileDirect($request->file('image'), 'admin/assets/images/flats');
-            } else {
-                unset($data['image']);
+            $existingDocuments = $request->input('existing_documents', []);
+            
+            // Delete physically removed files
+            $oldDocuments = is_array($flat->documents) ? $flat->documents : [];
+            $removedDocuments = array_diff($oldDocuments, $existingDocuments);
+            foreach ($removedDocuments as $removed) {
+                if (file_exists(public_path($removed))) {
+                    @unlink(public_path($removed));
+                }
             }
+
+            // Upload new files
+            $documents = $existingDocuments;
+            if ($request->hasFile('documents')) {
+                foreach ($request->file('documents') as $file) {
+                    $path = uploadFileDirect($file, 'admin/assets/images/flats');
+                    if ($path) {
+                        $documents[] = $path;
+                    }
+                }
+            }
+            
+            $data['documents'] = $documents;
+            unset($data['existing_documents']);
 
             // fill nulls with 0
             foreach (['house_rent', 'wasa', 'common_electricity', 'gas', 'utility', 'parking', 'society_bill', 'security', 'other'] as $f) {

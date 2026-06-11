@@ -11,7 +11,7 @@
                     <h1>Smart Property Management <br><span>On A Budget</span></h1>
                     <p>Stop paying for expensive and complicated software. Sweet Home provides a cost-effective way to track rents, handle utility bills, and monitor tenant data without stress.</p>
                     <div class="d-flex flex-wrap gap-3">
-                        <a  href="{{route('login')}}" class="btn btn-primary btn-lg px-4 shadow-sm">Get Started</a>
+                        <a  href="{{route('login')}}" class="btn btn-primary btn-lg px-4 shadow-sm">Get Started</a>a
                         <button class="btn btn-outline-secondary btn-lg px-4 shadow-sm"><i class="fas fa-play-circle me-1"></i> Watch Demo</button>
                     </div>
                 </div>

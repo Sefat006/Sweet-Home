@@ -10,9 +10,13 @@
                         <h2 style="color:white !important;">Tenants - {{ $flat->flat_name }}</h2>
                         <p style="color:white !important;" class="mb-0">
                             Building: <strong>{{ $building->name }}</strong> &nbsp;|&nbsp; Flat Status: 
-                            <span class="badge {{ $flat->status === 'occupied' ? 'bg-success' : 'bg-warning text-dark' }}">
-                                {{ ucfirst($flat->status) }}
-                            </span>
+                            @if($flat->status === 'occupied')
+                                <span class="badge bg-success">Occupied</span>
+                            @elseif($flat->status === 'booked_by_owner')
+                                <span class="badge bg-primary">Booked by Owner</span>
+                            @else
+                                <span class="badge bg-warning text-dark">Vacant</span>
+                            @endif
                         </p>
                     </div>
                 </div>
@@ -44,7 +48,7 @@
             <div class="card bg-style">
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h5 class="mb-0">Current Tenant</h5>
-                    @if($flat->status === 'vacant' || !$activeTenant)
+                    @if($flat->status === 'vacant' || (!$activeTenant && $flat->status !== 'booked_by_owner'))
                         <a href="{{ route('admin.tenants.enroll', [$building->id, $flat->id]) }}" class="btn btn-blue">
                             <i class="fa-solid fa-user-plus"></i> Enroll Tenant
                         </a>
@@ -62,7 +66,7 @@
                             </div>
                             <div class="col-md-6">
                                 <h4>{{ $activeTenant->tenant->name }}</h4>
-                                <p class="mb-1"><i class="fa-solid fa-phone text-muted"></i> {{ $activeTenant->tenant->phone }}</p>
+                                <p class="mb-1"><i class="fa-solid fa-phone text-muted"></i> @include('admin.partials.phone_links', ['phone' => $activeTenant->tenant->phone])</p>
                                 <p class="mb-1"><i class="fa-solid fa-calendar-alt text-muted"></i> Since: {{ $activeTenant->start_date ? $activeTenant->start_date->format('d M, Y') : 'N/A' }}</p>
                                 <p class="mb-0"><i class="fa-solid fa-money-bill text-muted"></i> Advance: ৳ {{ number_format($activeTenant->advance_amount, 2) }}</p>
                             </div>
@@ -89,6 +93,9 @@
                             @if($flat->status === 'occupied')
                                 <h5 class="text-warning">This flat is marked as occupied, but no active tenant is assigned!</h5>
                                 <p class="text-muted mb-0">Please enroll a tenant or change the flat status to vacant.</p>
+                            @elseif($flat->status === 'booked_by_owner')
+                                <h5 class="text-primary"><i class="fa-solid fa-house-user me-2"></i>This flat is booked by the owner for self-use.</h5>
+                                <p class="text-muted mb-0">No bills will be generated. To rent it out, edit the flat and change the status to Vacant or Occupied.</p>
                             @else
                                 <h5 class="text-muted">This flat is currently vacant.</h5>
                             @endif
@@ -124,7 +131,7 @@
                                 <tr>
                                     <td>{{ $key + 1 }}</td>
                                     <td>{{ $h->tenant->name ?? 'N/A' }}</td>
-                                    <td>{{ $h->tenant->phone ?? 'N/A' }}</td>
+                                    <td>@include('admin.partials.phone_links', ['phone' => $h->tenant->phone ?? null])</td>
                                     <td>{{ $h->start_date ? $h->start_date->format('d M, Y') : 'N/A' }}</td>
                                     <td>{{ $h->end_date ? $h->end_date->format('d M, Y') : 'N/A' }}</td>
                                     <td>

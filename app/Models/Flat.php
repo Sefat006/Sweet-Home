@@ -12,7 +12,7 @@ class Flat extends Model
 
     protected $fillable = [
         'building_id', 'flat_name', 'intercom_number', 'floor', 'status',
-        'available_for', 'flat_size', 'flat_details', 'image',
+        'available_for', 'flat_size', 'flat_details', 'image', 'documents',
         'house_rent', 'wasa', 'common_electricity', 'gas', 'utility',
         'parking', 'society_bill', 'security', 'other', 'bill_status',
     ];
@@ -27,6 +27,7 @@ class Flat extends Model
         'society_bill'       => 'decimal:2',
         'security'           => 'decimal:2',
         'other'              => 'decimal:2',
+        'documents'          => 'array',
     ];
 
     public function getTotalRentAttribute(): float

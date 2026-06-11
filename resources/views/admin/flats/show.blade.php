@@ -61,9 +61,13 @@
                     <div class="col-md-4">
                         <div class="info-label">Status</div>
                         <div class="info-value">
-                            <span class="badge {{ $flat->status === 'occupied' ? 'bg-success' : 'bg-warning text-dark' }}">
-                                {{ ucfirst($flat->status) }}
-                            </span>
+                            @if($flat->status === 'occupied')
+                                <span class="badge bg-success">Occupied</span>
+                            @elseif($flat->status === 'booked_by_owner')
+                                <span class="badge bg-primary">Booked by Owner</span>
+                            @else
+                                <span class="badge bg-warning text-dark">Vacant</span>
+                            @endif
                         </div>
                     </div>
                     <div class="col-md-4">
@@ -121,13 +125,28 @@
         <!-- Image & Actions Column -->
         <div class="col-md-4">
             <div class="bg-style">
-                <h5 class="card-title"><i class="fa-solid fa-image me-2 text-info"></i> Flat Image</h5>
-                @if($flat->image)
-                    <img src="{{ asset($flat->image) }}" class="img-fluid rounded border" alt="{{ $flat->flat_name }}">
+                <h5 class="card-title"><i class="fa-solid fa-folder-open me-2 text-info"></i> Documents & Images</h5>
+                @if(is_array($flat->documents) && count($flat->documents) > 0)
+                    <div class="d-flex flex-wrap gap-2">
+                        @foreach($flat->documents as $doc)
+                            <div class="border rounded p-2 text-center bg-light position-relative" style="width: 100px;">
+                                <a href="{{ asset($doc) }}" target="_blank" class="text-decoration-none">
+                                    @if(preg_match('/\.(jpg|jpeg|png|gif|webp)$/i', $doc))
+                                        <img src="{{ asset($doc) }}" class="img-thumbnail mb-1" style="width: 100%; height: 70px; object-fit: cover;">
+                                    @else
+                                        <i class="fa-solid fa-file-lines fa-3x text-secondary mt-2 mb-2 d-block"></i>
+                                    @endif
+                                    <small style="font-size: 11px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; color: #475569;" title="{{ basename($doc) }}">
+                                        {{ basename($doc) }}
+                                    </small>
+                                </a>
+                            </div>
+                        @endforeach
+                    </div>
                 @else
                     <div class="text-center p-5 border rounded bg-light text-muted">
-                        <i class="fa-solid fa-house-chimney-window fa-3x mb-3"></i>
-                        <p class="mb-0">No image available</p>
+                        <i class="fa-solid fa-folder-open fa-3x mb-3"></i>
+                        <p class="mb-0">No documents available</p>
                     </div>
                 @endif
             </div>

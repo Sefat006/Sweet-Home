@@ -111,8 +111,9 @@
                         <div class="col-md-3">
                             <label class="form-label">Status <span class="text-danger">*</span></label>
                             <select name="status" class="form-select @error('status') is-invalid @enderror" required>
-                                <option value="vacant"   {{ old('status') === 'vacant'   ? 'selected' : '' }}>Vacant</option>
-                                <option value="occupied" {{ old('status') === 'occupied' ? 'selected' : '' }}>Occupied</option>
+                                <option value="vacant"           {{ old('status') === 'vacant'           ? 'selected' : '' }}>Vacant</option>
+                                <option value="occupied"         {{ old('status') === 'occupied'         ? 'selected' : '' }}>Occupied</option>
+                                <option value="booked_by_owner" {{ old('status') === 'booked_by_owner' ? 'selected' : '' }}>Booked by Owner</option>
                             </select>
                             @error('status')<div class="invalid-feedback">{{ $message }}</div>@enderror
                         </div>
@@ -139,15 +140,15 @@
                         </div>
 
                         <div class="col-md-3">
-                            <label class="form-label">Flat Image</label>
+                            <label class="form-label">Documents / Images</label>
                             <div class="drag-drop-box">
                                 <i class="fa-solid fa-cloud-arrow-up icon"></i>
-                                <p class="drag-drop-text">Click or Drag & Drop</p>
-                                <input type="file" name="image" class="form-control @error('image') is-invalid @enderror"
-                                       accept="image/jpeg,image/png,image/jpg" onchange="previewFileName(this)">
+                                <p class="drag-drop-text">Click or Drag & Drop Multiple Files</p>
+                                <input type="file" name="documents[]" multiple class="form-control @error('documents.*') is-invalid @enderror"
+                                       accept="image/*,.pdf,.doc,.docx" onchange="previewFiles(this)">
                             </div>
-                            <small id="file-name" class="text-muted d-block mt-1"></small>
-                            @error('image')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
+                            <div id="file-previews" class="d-flex flex-wrap gap-2 mt-2"></div>
+                            @error('documents.*')<div class="invalid-feedback d-block">{{ $message }}</div>@enderror
                         </div>
 
                         <div class="col-md-12">
@@ -166,35 +167,91 @@
             <div class="col-md-12">
                 <div class="bg-style p-4 mb-4">
                     <h5 class="mb-3 fw-semibold">Rent Breakdown <small class="text-muted fs-6">(leave 0 if not applicable)</small></h5>
-                    <div class="row g-3">
-                        @php
-                        $rentFields = [
-                            'house_rent'         => 'House Rent',
-                            'wasa'               => 'WASA',
-                            'common_electricity' => 'Common Electricity',
-                            'gas'                => 'Gas',
-                            'utility'            => 'Utility',
-                            'parking'            => 'Parking',
-                            'society_bill'       => 'Society Bill',
-                            'security'           => 'Security',
-                            'other'              => 'Other',
-                        ];
-                        @endphp
+                    
+                    @php
+                    $rentFields = [
+                    'house_rent' => 'House Rent',
+                    'wasa' => 'WASA',
+                    'common_electricity' => 'Common Electricity',
+                    'gas' => 'Gas',
+                    'utility' => 'Utility',
+                    'parking' => 'Parking',
+                    'society_bill' => 'Society Bill',
+                    'security' => 'Security',
+                    'other' => 'Other',
+                    ];
 
-                        @foreach($rentFields as $field => $label)
+                    $selectedRentType = old('rent_type', '');
+                    @endphp
+
+                    <div class="row g-3">
+
+                        {{-- Rent Type --}}
                         <div class="col-md-4">
-                            <label class="form-label">{{ $label }} (৳)</label>
-                            <input type="number" name="{{ $field }}" step="0.01" min="0"
-                                   class="form-control rent-field @error($field) is-invalid @enderror"
-                                   value="{{ old($field, 0) }}" placeholder="0">
-                            @error($field)<div class="invalid-feedback">{{ $message }}</div>@enderror
+                            <label class="form-label">Rent Type</label>
+                            <select name="rent_type" id="rent_type" class="form-select">
+                                <option value="" {{ $selectedRentType === '' ? 'selected' : '' }}>Select</option>
+                                <option value="house_only" {{ $selectedRentType === 'house_only' ? 'selected' : '' }}>
+                                    House Rent Only
+                                </option>
+                                <option value="full_breakdown" {{ $selectedRentType === 'full_breakdown' ? 'selected' : '' }}>
+                                    Full Breakdown
+                                </option>
+                            </select>
                         </div>
+
+                        {{-- House Rent --}}
+                        <div class="col-md-4 house-rent-wrapper">
+                            <label class="form-label">House Rent (৳)</label>
+                            <input type="number"
+                                name="house_rent"
+                                step="0.01"
+                                min="0"
+                                class="form-control rent-field @error('house_rent') is-invalid @enderror"
+                                value="{{ old('house_rent', 0) }}"
+                                placeholder="0">
+
+                            @error('house_rent')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        {{-- Other Breakdown Fields --}}
+                        @foreach($rentFields as $field => $label)
+
+                        @if($field !== 'house_rent')
+
+                        <div class="col-md-4 breakdown-field">
+                            <label class="form-label">{{ $label }} (৳)</label>
+
+                            <input type="number"
+                                name="{{ $field }}"
+                                step="0.01"
+                                min="0"
+                                class="form-control rent-field @error($field) is-invalid @enderror"
+                                value="{{ old($field, 0) }}"
+                                placeholder="0">
+
+                            @error($field)
+                            <div class="invalid-feedback">{{ $message }}</div>
+                            @enderror
+                        </div>
+
+                        @endif
+
                         @endforeach
 
-                        <div class="col-md-4">
-                            <label class="form-label fw-semibold">Total Rent (৳)</label>
-                            <input type="text" id="total_rent_display" class="form-control bg-light fw-bold"
-                                   value="0" readonly>
+                        {{-- Total Rent --}}
+                        <div class="col-md-4 total-rent-wrapper">
+                            <label class="form-label fw-semibold">
+                                Total Rent (৳)
+                            </label>
+
+                            <input type="text"
+                                id="total_rent_display"
+                                class="form-control bg-light fw-bold"
+                                value="0"
+                                readonly>
                         </div>
                     </div>
                 </div>
@@ -211,24 +268,102 @@
 </div>
 
 <script>
-function previewFileName(input) {
-    if (input.files && input.files[0]) {
-        document.getElementById('file-name').innerText = 'Selected: ' + input.files[0].name;
-    } else {
-        document.getElementById('file-name').innerText = '';
+function previewFiles(input) {
+    const container = document.getElementById('file-previews');
+    container.innerHTML = '';
+    if (input.files) {
+        Array.from(input.files).forEach(file => {
+            const wrapper = document.createElement('div');
+            wrapper.className = 'border rounded p-1 text-center bg-light';
+            wrapper.style.width = '80px';
+            wrapper.style.overflow = 'hidden';
+            wrapper.style.textOverflow = 'ellipsis';
+            wrapper.style.whiteSpace = 'nowrap';
+            wrapper.title = file.name;
+
+            if (file.type.startsWith('image/')) {
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                img.className = 'img-thumbnail mb-1';
+                img.style.width = '100%';
+                img.style.height = '60px';
+                img.style.objectFit = 'cover';
+                wrapper.appendChild(img);
+            } else {
+                const icon = document.createElement('i');
+                icon.className = 'fa-solid fa-file-lines fa-2x text-secondary mt-2 mb-2 d-block';
+                wrapper.appendChild(icon);
+            }
+            
+            const name = document.createElement('small');
+            name.style.fontSize = '10px';
+            name.innerText = file.name;
+            wrapper.appendChild(name);
+            
+            container.appendChild(wrapper);
+        });
     }
 }
 
 document.addEventListener('DOMContentLoaded', function () {
-    const fields = document.querySelectorAll('.rent-field');
-    const total  = document.getElementById('total_rent_display');
-    function calc() {
-        let sum = 0;
-        fields.forEach(f => sum += parseFloat(f.value) || 0);
-        total.value = sum.toLocaleString('en-BD', {minimumFractionDigits: 2, maximumFractionDigits: 2});
+    const rentType = document.getElementById('rent_type');
+    const breakdownFields = document.querySelectorAll('.breakdown-field');
+    const rentFields = document.querySelectorAll('.rent-field');
+    const totalRent = document.getElementById('total_rent_display');
+    const houseRentWrapper = document.querySelector('.house-rent-wrapper');
+    const totalRentWrapper = document.querySelector('.total-rent-wrapper');
+
+    function calculateTotalRent() {
+        let total = 0;
+        rentFields.forEach(field => {
+            total += parseFloat(field.value) || 0;
+        });
+        totalRent.value = total.toLocaleString('en-BD', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        });
     }
-    fields.forEach(f => f.addEventListener('input', calc));
-    calc();
+
+    function toggleRentType() {
+        const val = rentType.value;
+
+        if (val === 'house_only') {
+            if (houseRentWrapper) houseRentWrapper.style.display = '';
+            breakdownFields.forEach(field => {
+                field.style.display = 'none';
+                const input = field.querySelector('input');
+                if (input) input.value = 0;
+            });
+            if (totalRentWrapper) totalRentWrapper.style.display = 'none';
+        } else if (val === 'full_breakdown') {
+            if (houseRentWrapper) houseRentWrapper.style.display = '';
+            breakdownFields.forEach(field => {
+                field.style.display = '';
+            });
+            if (totalRentWrapper) totalRentWrapper.style.display = '';
+        } else {
+            if (houseRentWrapper) {
+                houseRentWrapper.style.display = 'none';
+                const input = houseRentWrapper.querySelector('input');
+                if (input) input.value = 0;
+            }
+            breakdownFields.forEach(field => {
+                field.style.display = 'none';
+                const input = field.querySelector('input');
+                if (input) input.value = 0;
+            });
+            if (totalRentWrapper) totalRentWrapper.style.display = 'none';
+        }
+
+        calculateTotalRent();
+    }
+
+    rentType.addEventListener('change', toggleRentType);
+    rentFields.forEach(field => {
+        field.addEventListener('input', calculateTotalRent);
+    });
+
+    toggleRentType();
 });
 </script>
 @endsection

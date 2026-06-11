@@ -47,12 +47,14 @@
         $totalFlatsAll       = 0;
         $occupiedFlatsAll    = 0;
         $vacantFlatsAll      = 0;
+        $bookedFlatsAll      = 0;
         $totalOutstandingAll = 0;
 
         foreach ($rows as $r) {
             $totalFlatsAll       += $r['flats']->count();
             $occupiedFlatsAll    += $r['occupied_count'];
             $vacantFlatsAll      += $r['vacant_count'];
+            $bookedFlatsAll      += $r['booked_count'];
             $totalOutstandingAll += $r['total_outstanding'];
         }
     @endphp
@@ -88,6 +90,14 @@
                 <small class="text-muted">Occupied / Vacant</small>
             </div>
         </div>
+        @if($bookedFlatsAll > 0)
+        <div class="col-6 col-md-2 mb-2">
+            <div class="card text-center p-3 bg-style">
+                <h4 class="mb-0 text-primary">{{ $bookedFlatsAll }}</h4>
+                <small class="text-muted">Owner Self-Use</small>
+            </div>
+        </div>
+        @endif
         <div class="col-6 col-md-2 mb-2">
             <div class="card text-center p-3 bg-style">
                 <h4 class="mb-0 text-danger">৳ {{ number_format($totalOutstandingAll, 0) }}</h4>
@@ -151,6 +161,9 @@
                             </option>
                             <option value="vacant" {{ request('occupancy') === 'vacant' ? 'selected' : '' }}>
                                 Vacant
+                            </option>
+                            <option value="booked_by_owner" {{ request('occupancy') === 'booked_by_owner' ? 'selected' : '' }}>
+                                Booked by Owner
                             </option>
                         </select>
                     </div>
@@ -303,7 +316,7 @@
                                                                         @if($fRow['tenant_name'])
                                                                             <span class="fw-semibold">{{ $fRow['tenant_name'] }}</span>
                                                                             @if($fRow['tenant_phone'])
-                                                                                <br><small class="text-white"><i class="fa-solid fa-phone me-1"></i>{{ $fRow['tenant_phone'] }}</small>
+                                                                                <br><small class="text-white"><i class="fa-solid fa-phone me-1"></i>@include('admin.partials.phone_links', ['phone' => $fRow['tenant_phone']])</small>
                                                                             @endif
                                                                         @else
                                                                             <span class="badge bg-secondary">Vacant</span>
@@ -340,6 +353,10 @@
                                                                                     {{ $fRow['overdue_count'] }} months overdue
                                                                                 </span>
                                                                             @endif
+                                                                        @elseif($fStatus === 'booked_by_owner')
+                                                                            <span class="badge bg-primary px-2 py-1">
+                                                                                <i class="fa-solid fa-house-user me-1"></i>Owner Self Use
+                                                                            </span>
                                                                         @else
                                                                             <span class="badge bg-secondary px-2 py-1">
                                                                                 <i class="fa-solid fa-clock me-1"></i>No Bill Yet

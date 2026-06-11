@@ -13,7 +13,7 @@
         @if(isSuperAdmin())
         <li class="mm-active">
             <a href="{{ route('super_admin.dashboard')}}">
-                <img src="assets/images/icons/sidebar/dashboard.svg" alt="icon">
+                <img src="{{ asset('admin/assets/images/icons/sidebar/dashboard.svg')}}" alt="icon">
                 <span>Dashboard</span>
             </a>
         </li>
@@ -45,7 +45,7 @@
             </ul>
         </li>
         <li class="">
-            <a href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
+            <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#logoutModal">
                 <i class="fa-solid fa-sign-out-alt"></i>
                 <span>Logout</span>
             </a>
@@ -56,7 +56,7 @@
         @if(isAdmin())
         <li class="">
             <a href="{{ route('admin.dashboard')}}">
-                <img src="assets/images/icons/sidebar/dashboard.svg" alt="icon">
+                <img src="{{ asset('admin/assets/images/icons/sidebar/dashboard.svg')}}" alt="icon">
                 <span>Dashboard</span>
             </a>
         </li>
@@ -68,29 +68,9 @@
         </li>
         <li class="">
             <a href="{{ route('admin.profile.edit')}}">
-                <i class="fa-solid fa-user"></i>
+                <i class="fa-solid fa-edit"></i>
                 <span>Edit Profile</span>
             </a>
-        </li>
-        <li class="">
-            <a class="has-arrow" href="#">
-                <i class="fas fa-user"></i>
-                <span>Manager</span>
-            </a>
-            <ul>
-                <li class="">
-                    <a href="">
-                        <i class="fa fa-circle"></i>
-                        <span>Manager List</span>
-                    </a>
-                </li>
-                <li class="">
-                    <a href="">
-                        <i class="fa fa-circle"></i>
-                        <span>Create Manager</span>
-                    </a>
-                </li>
-            </ul>
         </li>
         <li class="">
             <a href="{{ route('admin.building.index')}}">
@@ -105,7 +85,7 @@
             </a>
         </li>
         <li class="">
-            <a href="#" data-bs-toggle="modal" data-bs-target="#logoutModal">
+            <a href="javascript:void(0);" data-bs-toggle="modal" data-bs-target="#logoutModal">
                 <i class="fa-solid fa-sign-out-alt"></i>
                 <span>Logout</span>
             </a>
