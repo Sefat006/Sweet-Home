@@ -22,6 +22,11 @@
                             <i class="fa-solid fa-money-bill-wave"></i> Collect Payment
                         </a>
                     @endif
+                    {{-- Export PDF Button --}}
+                    <a href="{{ route('admin.bills.export.pdf', [$building->id, $flat->id, $bill->id]) }}"
+                       class="btn btn-success" target="_blank">
+                        <i class="fa-solid fa-file-pdf"></i> Export PDF
+                    </a>
                 </div>
             </div>
         </div>
@@ -34,7 +39,55 @@
         <div class="alert alert-danger">{{ session('error') }}</div>
     @endif
 
+    {{-- ── Bill Info Header Card ──────────────────────────────────────── --}}
+    <div class="row mb-3">
+        <div class="col-md-12">
+            <div class="card bg-style">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-3">
+                            <div class="text-muted small mb-1">Building</div>
+                            <div class="fw-bold">{{ $building->name }}</div>
+                            @if($building->address)
+                                <div class="text-muted small">{{ $building->address }}</div>
+                            @endif
+                        </div>
+                        <div class="col-md-2">
+                            <div class="text-muted small mb-1">Flat</div>
+                            <div class="fw-bold">{{ $flat->flat_name }}</div>
+                            @if($flat->floor)
+                                <div class="text-muted small">Floor: {{ $flat->floor }}</div>
+                            @endif
+                        </div>
+                        <div class="col-md-3">
+                            <div class="text-muted small mb-1">Tenant</div>
+                            <div class="fw-bold">{{ $bill->tenant?->name ?? '—' }}</div>
+                            @if($bill->tenant?->phone)
+                                <div class="text-muted small">{{ $bill->tenant->phone }}</div>
+                            @endif
+                        </div>
+                        <div class="col-md-2">
+                            <div class="text-muted small mb-1">Bill Month</div>
+                            <div class="fw-bold">{{ date('F Y', strtotime($bill->bill_month . '-01')) }}</div>
+                        </div>
+                        <div class="col-md-2">
+                            <div class="text-muted small mb-1">Status</div>
+                            @if($bill->collection_status === 'paid')
+                                <span class="badge bg-success fs-6">Paid</span>
+                            @elseif($bill->collection_status === 'partial')
+                                <span class="badge bg-warning text-dark fs-6">Partial</span>
+                            @else
+                                <span class="badge bg-danger fs-6">Due</span>
+                            @endif
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div class="row">
+        {{-- ── Rent Breakdown ──────────────────────────────────────────── --}}
         <div class="col-md-5">
             <div class="card bg-style mb-3">
                 <div class="card-body">
@@ -46,16 +99,16 @@
                                 <td class="text-end">৳ {{ number_format($bill->house_rent, 2) }}</td>
                             </tr>
                             <tr>
-                                <th>WASA</th>
+                                <th>Gas</th>
+                                <td class="text-end">৳ {{ number_format($bill->gas, 2) }}</td>
+                            </tr>
+                            <tr>
+                                <th>Water (WASA)</th>
                                 <td class="text-end">৳ {{ number_format($bill->wasa, 2) }}</td>
                             </tr>
                             <tr>
                                 <th>Common Electricity</th>
                                 <td class="text-end">৳ {{ number_format($bill->common_electricity, 2) }}</td>
-                            </tr>
-                            <tr>
-                                <th>Gas</th>
-                                <td class="text-end">৳ {{ number_format($bill->gas, 2) }}</td>
                             </tr>
                             <tr>
                                 <th>Utility</th>
@@ -95,6 +148,7 @@
             </div>
         </div>
 
+        {{-- ── Summary & Collection History ────────────────────────────── --}}
         <div class="col-md-7">
             <div class="card bg-style mb-3">
                 <div class="card-body">

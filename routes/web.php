@@ -113,6 +113,7 @@ Route::middleware(['auth'])->prefix('admin')->name('admin.')->group(function () 
     Route::get('/building/{buildingId}/flat/{flatId}/bill/{billId}/collect',             [MonthlyBillController::class, 'collectForm'])->name('bills.collect.form');
     Route::post('/building/{buildingId}/flat/{flatId}/bill/{billId}/collect',            [MonthlyBillController::class, 'collectStore'])->name('bills.collect.store');
     Route::delete('/building/{buildingId}/flat/{flatId}/bill/{billId}/collection/{collectionId}/delete', [MonthlyBillController::class, 'deleteCollection'])->name('bills.collection.delete');
+    Route::get('/building/{buildingId}/flat/{flatId}/bill/{billId}/export-pdf',                          [MonthlyBillController::class, 'exportPdf'])->name('bills.export.pdf');
 
     // Utility Bill Routes (nested under building)
     Route::get('/building/{buildingId}/utility-bills',                    [UtilityBillController::class, 'index'])->name('utility.index');

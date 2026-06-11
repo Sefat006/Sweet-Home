@@ -18,6 +18,7 @@ class Building extends Model
         'holding_tax_number', 'holding_tax_clearance_up_to', 'holding_tax_document',
         'dolil_document', 'noksha_document', 'mutation_document',
         'khajna_document', 'khajna_clearance_up_to', 'alert_notes',
+        'bank_info', 'contact_note',
     ];
 
     protected $casts = [

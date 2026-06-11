@@ -61,7 +61,9 @@ class BuildingController extends Controller
             'mutation_document' => 'nullable|file|mimes:pdf,jpg,png,zip',
             'khajna_document' => 'nullable|file|mimes:pdf,jpg,png,zip',
             'khajna_clearance_up_to' => 'nullable|date',
-            'alert_notes' => 'nullable|string',
+            'alert_notes'                => 'nullable|string',
+            'bank_info'                  => 'nullable|string',
+            'contact_note'               => 'nullable|string|max:300',
             // Security Info Validation
             'sec_name' => 'nullable|array',
             'sec_name.*' => 'required|string|max:255',
@@ -108,7 +110,9 @@ class BuildingController extends Controller
                 'mutation_document' => $mutationDoc,
                 'khajna_document' => $khajnaDoc,
                 'khajna_clearance_up_to' => $request->khajna_clearance_up_to,
-                'alert_notes' => $request->alert_notes,
+                'alert_notes'      => $request->alert_notes,
+                'bank_info'        => $request->bank_info,
+                'contact_note'     => $request->contact_note,
             ]);
 
             // Handle Security File Uploads and Store Security Info
@@ -171,7 +175,9 @@ class BuildingController extends Controller
             'mutation_document' => 'nullable|file|mimes:pdf,jpg,png,zip',
             'khajna_document' => 'nullable|file|mimes:pdf,jpg,png,zip',
             'khajna_clearance_up_to' => 'nullable|date',
-            'alert_notes' => 'nullable|string',
+            'alert_notes'                => 'nullable|string',
+            'bank_info'                  => 'nullable|string',
+            'contact_note'               => 'nullable|string|max:300',
             // Security Info Validation
             'sec_name' => 'nullable|array',
             'sec_name.*' => 'required|string|max:255',

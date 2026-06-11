@@ -141,6 +141,24 @@
                                     <textarea name="alert_notes" rows="2" placeholder="Any alert notes">{{ old('alert_notes', $building->alert_notes) }}</textarea>
                                 </div>
                             </div>
+
+                            {{-- Bill Slip PDF Info --}}
+                            <div class="col-md-12">
+                                <hr class="mb-20 mt-5">
+                                <h4 class="mb-20">Bill Slip Information (for PDF Export)</h4>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="input__group mb-25">
+                                    <label>Online Bank Transfer Info <small class="text-muted">(shown on bill slip — one line per Enter)</small></label>
+                                    <textarea name="bank_info" rows="4" placeholder="Prime Bank _Account Name: Rubaiyat Ferdous&#10;Account Number: 2125216028410&#10;Branch Name: Uttara Branch">{{ old('bank_info', $building->bank_info) }}</textarea>
+                                </div>
+                            </div>
+                            <div class="col-md-12">
+                                <div class="input__group mb-25">
+                                    <label>Additional Contact Note <small class="text-muted">(optional — shown under phone on bill slip)</small></label>
+                                    <input type="text" name="contact_note" value="{{ old('contact_note', $building->contact_note) }}" placeholder="e.g. Email:rf.sifat@gmail.com">
+                                </div>
+                            </div>
                         </div>
 
                         <hr class="mb-25">

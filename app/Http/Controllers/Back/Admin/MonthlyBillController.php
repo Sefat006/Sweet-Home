@@ -8,6 +8,7 @@ use App\Models\BillCollection;
 use App\Models\Flat;
 use App\Models\FlatTenant;
 use App\Models\MonthlyBill;
+use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -168,6 +169,34 @@ class MonthlyBillController extends Controller
             ->findOrFail($billId);
 
         return view('admin.bills.show', compact('building', 'flat', 'bill'));
+    }
+
+    // ─── 4b. Export bill as PDF ───────────────────────────────────────
+
+    public function exportPdf($buildingId, $flatId, $billId)
+    {
+        $flat     = $this->getFlat($buildingId, $flatId);
+        $building = $flat->building->load('admin');
+        $bill     = MonthlyBill::with(['tenant', 'collections'])
+            ->where('flat_id', $flat->id)
+            ->findOrFail($billId);
+
+        $pdf = Pdf::loadView('admin.bills.pdf.bill_slip', compact('building', 'flat', 'bill'))
+            ->setPaper('a4', 'landscape')
+            ->setOptions([
+                'dpi'                  => 150,
+                'defaultFont'          => 'DejaVu Sans',
+                'isHtml5ParserEnabled' => true,
+                'isRemoteEnabled'      => true,
+            ]);
+
+        // Save to public/admin/assets/documents/bill-slips/
+        $fileName  = 'bill-slip-' . $flat->flat_name . '-' . $bill->bill_month . '.pdf';
+        $fileName  = preg_replace('/[^A-Za-z0-9\-_.]/', '_', $fileName);
+        $savePath  = public_path('admin/assets/documents/bill-slips/' . $fileName);
+        $pdf->save($savePath);
+
+        return $pdf->download($fileName);
     }
 
     // ─── 5. Collect payment form ──────────────────────────────────────
